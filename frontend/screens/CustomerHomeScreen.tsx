@@ -506,8 +506,17 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
     trackingFittedRef.current = true;
     const lngs = trackingRoute.coordinates.map(c => c[0]);
     const lats = trackingRoute.coordinates.map(c => c[1]);
+    // At least ~450 m across: a worker already at the door makes a zero-size box, and fitting that
+    // zooms to the map's limit, which also loaded over a gigabyte of map data at once.
+    const half = 0.002;
+    const [midLng, midLat] = [(Math.min(...lngs) + Math.max(...lngs)) / 2, (Math.min(...lats) + Math.max(...lats)) / 2];
     cameraRef.current?.fitBounds(
-      [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)],
+      [
+        Math.min(Math.min(...lngs), midLng - half),
+        Math.min(Math.min(...lats), midLat - half),
+        Math.max(Math.max(...lngs), midLng + half),
+        Math.max(Math.max(...lats), midLat + half),
+      ],
       // Small padding only — the map's contentInset already reserves the
       // header and the bottom half of the screen; stacking large padding on
       // top of it collapses the viewport and zooms out to the whole country
