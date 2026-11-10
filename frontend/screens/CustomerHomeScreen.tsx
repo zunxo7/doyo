@@ -398,10 +398,11 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
       // rating). A relaunch has no in-memory offer, so the whole panel silently
       // vanished and left a bare map.
       if (live.acceptedOffer) setTrackingOffer(live.acceptedOffer);
-      // Open = still collecting offers; assigned/in_progress = worker on the way.
+      // A booking made in the chat reopens in the chat, which shows it with Track on map.
+      // Anything else: open = still collecting offers, assigned/in_progress = worker on the way.
       const inChat = readChat()?.request?.jobId === live.request.jobId;
-      if (live.job.status !== "open") setMode("tracking");
-      else if (!inChat) setMode("offers");
+      if (inChat) return;
+      setMode(live.job.status !== "open" ? "tracking" : "offers");
     })();
     return () => {
       active = false;

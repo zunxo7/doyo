@@ -4,6 +4,7 @@ import Reanimated, {
   Easing,
   FadeIn,
   FadeInDown,
+  LinearTransition,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -17,6 +18,8 @@ import AppIcon from "./AppIcon";
 import ChatServicesSheet from "./ChatServicesSheet";
 import PayPalCheckout from "./PayPalCheckout";
 import PriceInputAlert from "./PriceInputAlert";
+import OfferBubble from "./OfferBubble";
+import { BookedCard, JobCard } from "./ChatCards";
 import ScreenBackground from "./ScreenBackground";
 import type { Offer } from "./OffersOverlay";
 import { useSettings, useT } from "../contexts/SettingsContext";
@@ -257,7 +260,7 @@ export default function AgentChat({
             ...current.filter(item => item.kind !== "plan"),
             ...log.map((line): ChatItem =>
               line.from === "worker"
-                ? { id: nextId.current++, kind: "worker", text: line.text, name: line.name, avatar: line.avatar }
+                ? { id: nextId.current++, kind: "worker", text: line.text, name: line.name, avatar: line.avatar, price: line.price, rating: line.rating, jobs: line.jobs, minutesAway: line.minutesAway }
                 : { id: nextId.current++, kind: "agent", text: line.text },
             ),
             { id: nextId.current++, kind: "doyo", text: receipt + savedLine },
@@ -273,8 +276,13 @@ export default function AgentChat({
         setOffers(nextOffers);
         if (!job?.agent) return;
         setAgent(job.agent);
-        const accepted = nextOffers.find(offer => offer.id === job.agent?.offerId);
-        if (job.agent.status === "booked" && accepted) {
+        // Booked by Doyo, or by the customer after taking over: once the job is assigned, the one
+        // accepted offer is the booking, so a reopened chat still shows it with Track on map.
+        const assigned = job.status === "assigned" || job.status === "in_progress";
+        const accepted =
+          nextOffers.find(offer => offer.id === job.agent?.offerId) ??
+          (assigned ? (nextOffers.find(offer => offer.price === job.acceptedPrice) ?? nextOffers[0]) : undefined);
+        if ((job.agent.status === "booked" || assigned) && accepted) {
           setBooked(accepted);
           setStage("booked");
         }
@@ -570,16 +578,8 @@ export default function AgentChat({
           }
           if (item.kind === "worker") {
             return (
-              <View key={item.id} style={s.row}>
-                <View style={s.avatar}>
-                  <UserCircle size={32} color={item.avatar === "female" ? colors.accent : colors.white} weight="fill" />
-                </View>
-                <View style={s.rowBody}>
-                  <Text style={[s.speaker, fontStyles.semiBold]}>{item.name}</Text>
-                  <View style={s.bubble}>
-                    <Text style={[s.bubbleText, fontStyles.medium]}>{item.text}</Text>
-                  </View>
-                </View>
+              <View key={item.id}>
+                <OfferBubble line={item} />
               </View>
             );
           }
@@ -597,115 +597,65 @@ export default function AgentChat({
           if (!plan) return null;
           const details = toDetails(plan);
           return (
-            <Reanimated.View key={item.id} entering={FadeInDown.duration(260)} style={s.card}>
-              <Text style={[s.cardTitle, fontStyles.bold]}>{t(SERVICE_LABELS[plan.service])}</Text>
-              <Text style={[s.cardSub, fontStyles.medium]}>{summarizeJobDetails(details, "", t)}</Text>
-              <View style={s.cardDivider} />
-              <View style={s.cardLine}>
-                <Text style={[s.cardLabel, fontStyles.medium]}>{t("Where")}</Text>
-                <Text style={[s.cardValue, fontStyles.semiBold]} numberOfLines={1}>{address}</Text>
-              </View>
-              <View style={s.cardLine}>
-                <Text style={[s.cardLabel, fontStyles.medium]}>{t("Worker")}</Text>
-                <Text style={[s.cardValue, fontStyles.semiBold]}>{t(plan.workerPreference)}</Text>
-              </View>
-              <View style={s.cardLine}>
-                <Text style={[s.cardLabel, fontStyles.medium]}>{t("Starts at")}</Text>
-                <Text style={[s.cardValue, fontStyles.semiBold]}>PKR{price.ask.toLocaleString()}</Text>
-              </View>
-              <View style={s.cardLine}>
-                <Text style={[s.cardLabel, fontStyles.medium]}>{t("Never over")}</Text>
-                <Text style={[s.cardValue, fontStyles.semiBold]}>PKR{price.limit.toLocaleString()}</Text>
-              </View>
-              <TouchableOpacity
-                style={s.cardLine}
-                activeOpacity={0.8}
-                disabled={!composerOpen}
-                onPress={() => setPayment(current => (current === "PayPal" ? "Cash" : "PayPal"))}
-              >
-                <Text style={[s.cardLabel, fontStyles.medium]}>{t("Pay with")}</Text>
-                <Text style={[s.cardValueLink, fontStyles.semiBold]}>{t(payment)}</Text>
-              </TouchableOpacity>
-              {composerOpen ? (
-                <View style={s.cardActions}>
-                  <TouchableOpacity style={s.secondaryButton} activeOpacity={0.85} onPress={() => inputRef.current?.focus()}>
-                    <Text style={[s.secondaryText, fontStyles.semiBold]}>{t("Change")}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={s.primaryButton} activeOpacity={0.9} disabled={thinking} onPress={() => void book()}>
-                    <Text style={[s.primaryText, fontStyles.semiBold]}>{t("Book it")}</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : null}
+            <Reanimated.View key={item.id} entering={FadeInDown.duration(260)} layout={LinearTransition.duration(220)}>
+              <JobCard
+                service={plan.service}
+                title={t(SERVICE_LABELS[plan.service])}
+                summary={summarizeJobDetails(details, "", t)}
+                address={address}
+                worker={t(plan.workerPreference)}
+                ask={price.ask}
+                limit={price.limit}
+                payment={t(payment)}
+                editable={composerOpen}
+                busy={thinking}
+                onTogglePayment={() => setPayment(current => (current === "PayPal" ? "Cash" : "PayPal"))}
+                onChange={() => inputRef.current?.focus()}
+                onBook={() => void book()}
+              />
             </Reanimated.View>
           );
         })}
 
-        {(agent?.log ?? []).map(line =>
-          line.from === "worker" ? (
-            <Reanimated.View key={`${line.at}${line.text}`} entering={FadeInDown.duration(220)} style={s.row}>
-              <View style={s.avatar}>
-                <UserCircle size={32} color={line.avatar === "female" ? colors.accent : colors.white} weight="fill" />
-              </View>
-              <View style={s.rowBody}>
-                <Text style={[s.speaker, fontStyles.semiBold]}>{line.name}</Text>
-                <View style={s.bubble}>
-                  <Text style={[s.bubbleText, fontStyles.medium]}>{line.text}</Text>
-                </View>
-              </View>
-            </Reanimated.View>
-          ) : (
-            <Reanimated.View key={`${line.at}${line.text}`} entering={FadeInDown.duration(220)}>
-              <DoyoRow>
-                <View style={[s.bubble, s.bubbleAgent]}>
-                  <Text style={[s.bubbleText, fontStyles.medium]}>{line.text}</Text>
-                </View>
-              </DoyoRow>
-            </Reanimated.View>
-          ),
-        )}
-
-        {choosing
-          ? offers.map(offer => (
-              <Reanimated.View key={offer.id} entering={FadeInDown.duration(240)} style={s.card}>
-                <View style={s.offerTop}>
-                  <Text style={[s.cardTitle, fontStyles.bold]}>{offer.name}</Text>
-                  <Text style={[s.offerPrice, fontStyles.bold]}>PKR{offer.price.toLocaleString()}</Text>
-                </View>
-                <View style={s.offerMeta}>
-                  <Star size={13} color="#ffd400" weight="fill" />
-                  <Text style={[s.cardSub, fontStyles.medium]}>
-                    {offer.rating} · {t("{min} min", { min: offer.minutesAway })}
-                  </Text>
-                </View>
-                <View style={s.cardActions}>
-                  <TouchableOpacity style={s.secondaryButton} activeOpacity={0.85} onPress={() => setCountering(offer)}>
-                    <Text style={[s.secondaryText, fontStyles.semiBold]}>{t("Counter")}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={s.primaryButton} activeOpacity={0.9} onPress={() => void accept(offer)}>
-                    <Text style={[s.primaryText, fontStyles.semiBold]}>{t("Accept")}</Text>
-                  </TouchableOpacity>
-                </View>
+        {(agent?.log ?? []).map((line, index, log) => {
+          const key = `${line.at}${line.text}`;
+          if (line.from !== "worker") {
+            return (
+              <Reanimated.View key={key} entering={FadeInDown.duration(220)} layout={LinearTransition.duration(220)}>
+                <DoyoRow>
+                  <View style={[s.bubble, s.bubbleAgent]}>
+                    <Text style={[s.bubbleText, fontStyles.medium]}>{line.text}</Text>
+                  </View>
+                </DoyoRow>
               </Reanimated.View>
-            ))
-          : null}
+            );
+          }
+          // Counter and Accept sit on a worker's current offer while the customer is choosing.
+          const live = choosing && line.offerId ? offers.find(offer => offer.id === line.offerId) : undefined;
+          const superseded = Boolean(line.offerId) && log.slice(index + 1).some(later => later.offerId && later.name === line.name);
+          return (
+            <Reanimated.View key={key} entering={FadeInDown.duration(220)} layout={LinearTransition.duration(220)}>
+              <OfferBubble
+                line={line}
+                superseded={superseded}
+                onCounter={live ? () => setCountering(live) : undefined}
+                onAccept={live ? () => void accept(live) : undefined}
+              />
+            </Reanimated.View>
+          );
+        })}
 
         {booked ? (
-          <Reanimated.View entering={FadeInDown.duration(280)} style={[s.card, s.bookedCard]}>
-            <Text style={[s.bookedLabel, fontStyles.semiBold]}>{t("Booked")}</Text>
-            <View style={s.offerTop}>
-              <Text style={[s.cardTitle, fontStyles.bold]}>{booked.name}</Text>
-              <Text style={[s.offerPrice, fontStyles.bold]}>PKR{booked.price.toLocaleString()}</Text>
-            </View>
-            <View style={s.offerMeta}>
-              <Star size={13} color="#ffd400" weight="fill" />
-              <Text style={[s.cardSub, fontStyles.medium]}>
-                {booked.rating} · {t("{min} min", { min: booked.minutesAway })}
-                {saved > 0 ? ` · ${t("Saved PKR{amount}", { amount: saved.toLocaleString() })}` : ""}
-              </Text>
-            </View>
-            <TouchableOpacity style={[s.primaryButton, s.offerAccept]} activeOpacity={0.9} onPress={() => onBooked(booked)}>
-              <Text style={[s.primaryText, fontStyles.semiBold]}>{t("Track on map")}</Text>
-            </TouchableOpacity>
+          <Reanimated.View entering={FadeInDown.duration(280)} layout={LinearTransition.duration(220)}>
+            <BookedCard
+              name={booked.name}
+              avatar={booked.avatar}
+              rating={booked.rating}
+              minutesAway={booked.minutesAway}
+              price={booked.price}
+              saved={saved}
+              onTrack={() => onBooked(booked)}
+            />
           </Reanimated.View>
         ) : null}
 

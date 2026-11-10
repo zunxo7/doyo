@@ -3,7 +3,7 @@ import type { AgentPlan } from "./bidding";
 
 export type ChatItem =
   | { id: number; kind: "me" | "doyo" | "agent"; text: string }
-  | { id: number; kind: "worker"; text: string; name?: string; avatar?: "male" | "female" }
+  | { id: number; kind: "worker"; text: string; name?: string; avatar?: "male" | "female"; price?: number; rating?: string; jobs?: string; minutesAway?: number }
   | { id: number; kind: "plan" };
 export type ChatDraft = {
   items: ChatItem[];

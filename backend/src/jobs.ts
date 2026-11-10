@@ -28,6 +28,12 @@ export type AgentLine = {
   from: "doyo" | "worker";
   name?: string;
   avatar?: "male" | "female";
+  // Set when the line came with an offer, so the chat can show the offer where it was made.
+  offerId?: string;
+  price?: number;
+  rating?: string;
+  jobs?: string;
+  minutesAway?: number;
 };
 export type AgentState = {
   status: "working" | "booked" | "stopped";
@@ -281,13 +287,21 @@ export function updateAgent(
   jobId: string,
   patch: Partial<Pick<AgentState, "status" | "offerId">>,
   note?: string,
-  worker?: Pick<Offer, "name" | "avatar">,
+  worker?: Pick<Offer, "name" | "avatar"> & Partial<Offer>,
 ): void {
   const job = getJob(jobId);
   if (!job.agent) return;
   Object.assign(job.agent, patch);
   if (note && job.agent.log.at(-1)?.text !== note) {
-    job.agent.log.push({ text: note, at: Date.now(), from: worker ? "worker" : "doyo", name: worker?.name, avatar: worker?.avatar });
+    const offer = worker?.price != null && worker.id ? worker : null;
+    job.agent.log.push({
+      text: note,
+      at: Date.now(),
+      from: worker ? "worker" : "doyo",
+      name: worker?.name,
+      avatar: worker?.avatar,
+      ...(offer ? { offerId: offer.id, price: offer.price, rating: offer.rating, jobs: offer.jobs, minutesAway: offer.minutesAway } : {}),
+    });
   }
   saveJob(job);
   broadcast(job);

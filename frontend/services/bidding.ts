@@ -36,7 +36,18 @@ export type JobAgent = {
   status: "working" | "booked" | "stopped";
   budget: number;
   offerId: string | null;
-  log: { text: string; at: number; from: "doyo" | "worker"; name?: string; avatar?: "male" | "female" }[];
+  log: {
+    text: string;
+    at: number;
+    from: "doyo" | "worker";
+    name?: string;
+    avatar?: "male" | "female";
+    offerId?: string;
+    price?: number;
+    rating?: string;
+    jobs?: string;
+    minutesAway?: number;
+  }[];
 };
 
 export type AgentPlan = {
