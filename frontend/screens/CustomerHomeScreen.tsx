@@ -2659,7 +2659,7 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
 
       {/* While the chat is the home screen, nothing behind it (the map, the older panel) can show
           through, even for the frame it takes the chat to appear: this is the chat's own background. */}
-      {mode === "view" && step === "choose" && chatInstant ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#1d1d1d" }]} /> : null}
+      {mode === "view" && step === "choose" && chatInstant ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#1d1d1d", zIndex: 79 }]} /> : null}
       <AgentChat
         visible={mode === "view" && step === "choose"}
         instant={chatInstant}
