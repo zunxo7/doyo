@@ -54,37 +54,29 @@ export function JobCard({ service, title, summary, worker, ask, limit, payment, 
           <Image source={SERVICE_IMAGES[service]} style={s.iconImage} resizeMode="contain" />
         </View>
         <View style={s.titleBlock}>
-          <Text style={[s.title, fontStyles.bold]} numberOfLines={1}>
-            {title}
-          </Text>
-          <Text style={[s.sub, fontStyles.medium]} numberOfLines={1}>
-            {summary}
-          </Text>
-        </View>
-        <View style={s.priceBlock}>
-          <Text style={[s.price, fontStyles.bold]}>PKR{ask.toLocaleString()}</Text>
-          <Text style={[s.priceCaption, fontStyles.medium]}>{t("to start")}</Text>
+          <Text style={[s.title, fontStyles.bold]}>{title}</Text>
+          <Text style={[s.sub, fontStyles.medium]}>{summary}</Text>
         </View>
       </View>
 
       <View style={s.tiles}>
         <View style={s.tile}>
-          <Text style={[s.tileLabel, fontStyles.medium]}>{t("Worker")}</Text>
-          <Text style={[s.tileValue, fontStyles.semiBold]} numberOfLines={1}>
-            {worker}
-          </Text>
+          <Text style={[s.tileLabel, fontStyles.medium]}>{t("Starts at")}</Text>
+          <Text style={[s.tileValue, fontStyles.semiBold]}>PKR{ask.toLocaleString()}</Text>
         </View>
         <View style={s.tile}>
           <Text style={[s.tileLabel, fontStyles.medium]}>{t("Never over")}</Text>
-          <Text style={[s.tileValue, fontStyles.semiBold]} numberOfLines={1}>
-            PKR{limit.toLocaleString()}
-          </Text>
+          <Text style={[s.tileValue, fontStyles.semiBold]}>PKR{limit.toLocaleString()}</Text>
+        </View>
+      </View>
+      <View style={[s.tiles, s.tilesNext]}>
+        <View style={s.tile}>
+          <Text style={[s.tileLabel, fontStyles.medium]}>{t("Worker")}</Text>
+          <Text style={[s.tileValue, fontStyles.semiBold]}>{worker}</Text>
         </View>
         <TouchableOpacity style={s.tile} activeOpacity={0.8} disabled={!editable} onPress={onTogglePayment}>
           <Text style={[s.tileLabel, fontStyles.medium]}>{t("Pay with")}</Text>
-          <Text style={[s.tileValue, s.tileValueLink, fontStyles.semiBold]} numberOfLines={1}>
-            {payment}
-          </Text>
+          <Text style={[s.tileValue, s.tileValueLink, fontStyles.semiBold]}>{payment}</Text>
         </TouchableOpacity>
       </View>
 

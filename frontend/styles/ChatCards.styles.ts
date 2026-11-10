@@ -74,6 +74,9 @@ export const makeChatCardStyles = (c: Palette) =>
       gap: 8,
       marginTop: 12,
     },
+    tilesNext: {
+      marginTop: 8,
+    },
     tile: {
       flex: 1,
       minWidth: 0,
