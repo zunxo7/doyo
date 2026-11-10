@@ -47,7 +47,7 @@ export function JobCard({ service, title, summary, worker, ask, limit, payment, 
   const colors = useColors();
   const s = useThemedStyles(makeChatCardStyles);
   return (
-    <View style={s.card}>
+    <View style={[s.card, s.cardBooked]}>
       <CardPattern />
       <View style={s.head}>
         <View style={s.icon}>

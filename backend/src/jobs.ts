@@ -28,6 +28,7 @@ export type AgentLine = {
   from: "doyo" | "worker";
   name?: string;
   avatar?: "male" | "female";
+  workerId?: string;
   // Set when the line came with an offer, so the chat can show the offer where it was made.
   offerId?: string;
   price?: number;
@@ -300,6 +301,7 @@ export function updateAgent(
       from: worker ? "worker" : "doyo",
       name: worker?.name,
       avatar: worker?.avatar,
+      workerId: worker?.workerId ?? (worker && "id" in worker && typeof worker.id === "string" && worker.id.startsWith("sim-") ? worker.id : undefined),
       ...(offer ? { offerId: offer.id, price: offer.price, rating: offer.rating, jobs: offer.jobs, minutesAway: offer.minutesAway } : {}),
     });
   }

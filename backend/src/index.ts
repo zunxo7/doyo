@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { randomUUID } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import websocket from "@fastify/websocket";
@@ -240,8 +241,13 @@ app.put("/api/workers/:id/photo", async (req: FastifyRequest<IdParams>) => {
 
 app.get("/api/worker-photo/:id", async (req: FastifyRequest<IdParams>, reply) => {
   const photo = store.getBlob(`photo:${req.params.id}`);
-  if (!photo) throw new HttpError(404, "No photo.");
-  return reply.type(photo.type).send(photo.bytes);
+  if (photo) return reply.type(photo.type).send(photo.bytes);
+  // The simulated workers wear the app's own characters.
+  const avatar = new URL(`./avatars/${req.params.id}.webp`, import.meta.url);
+  if (/^sim-[a-z]+$/.test(req.params.id) && existsSync(avatar)) {
+    return reply.type("image/webp").header("cache-control", "public, max-age=86400").send(readFileSync(avatar));
+  }
+  throw new HttpError(404, "No photo.");
 });
 
 app.post("/api/workers/:id/online", async req => {

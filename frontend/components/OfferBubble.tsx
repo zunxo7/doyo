@@ -1,16 +1,18 @@
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { Star, UserCircle } from "phosphor-react-native";
 import { useT } from "../contexts/SettingsContext";
 import { useColors, useThemedStyles } from "../hooks/useColors";
 import { makeOfferBubbleStyles } from "../styles/OfferBubble.styles";
 import { CardPattern } from "./ChatCards";
+import { workerPhotoUrl } from "../services/bidding";
 import { fontStyles } from "../styles/fonts";
 
 export type OfferLine = {
   text: string;
   name?: string;
   avatar?: "male" | "female";
+  workerId?: string;
   price?: number;
   rating?: string;
   jobs?: string;
@@ -56,12 +58,17 @@ export default function OfferBubble({ line, onCounter, onAccept, superseded = fa
   const colors = useColors();
   const s = useThemedStyles(makeOfferBubbleStyles);
   const actionable = Boolean(onAccept && onCounter);
+  const [photoFailed, setPhotoFailed] = useState(false);
   const facts = [line.jobs ? t("{jobs} jobs", { jobs: line.jobs }) : null, line.minutesAway != null ? t("{min} min away", { min: line.minutesAway }) : null].filter(Boolean);
 
   return (
     <View style={s.row}>
       <View style={s.avatar}>
-        <UserCircle size={32} color={line.avatar === "female" ? colors.accent : colors.white} weight="fill" />
+        {line.workerId && !photoFailed ? (
+          <Image source={{ uri: workerPhotoUrl(line.workerId) }} style={s.photo} onError={() => setPhotoFailed(true)} />
+        ) : (
+          <UserCircle size={32} color={line.avatar === "female" ? colors.accent : colors.white} weight="fill" />
+        )}
       </View>
       <View style={[s.card, actionable && s.cardLive]}>
         <CardPattern />

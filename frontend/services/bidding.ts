@@ -43,6 +43,7 @@ export type JobAgent = {
     name?: string;
     avatar?: "male" | "female";
     offerId?: string;
+    workerId?: string;
     price?: number;
     rating?: string;
     jobs?: string;

@@ -15,6 +15,11 @@ export const makeOfferBubbleStyles = (c: Palette) =>
       alignItems: "center",
       justifyContent: "center",
     },
+    photo: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+    },
     card: {
       flexShrink: 1,
       width: "86%",
