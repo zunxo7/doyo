@@ -554,7 +554,7 @@ export default function AgentChat({
       >
         {items.length === 0 ? (
           <Reanimated.View entering={FadeIn.duration(400)} style={s.welcome}>
-            <AppIcon size={64} />
+            <AppIcon size={84} />
             <Text style={[s.welcomeTagline, fontStyles.semiBold]}>{t("Let Doyo do it for you")}</Text>
           </Reanimated.View>
         ) : null}

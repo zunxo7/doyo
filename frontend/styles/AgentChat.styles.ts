@@ -68,7 +68,7 @@ export const makeAgentChatStyles = (c: Palette) =>
       color: c.white,
       fontSize: 18,
       textAlign: "center",
-      marginTop: 10,
+      marginTop: 14,
     },
     meBubble: {
       alignSelf: "flex-end",
