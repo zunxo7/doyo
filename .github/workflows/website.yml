@@ -3,7 +3,7 @@ name: Publish website
 on:
   push:
     branches: [main, "claude/**"]
-    paths: [website/**]
+    paths: [website/**, dashboard/**, scripts/version-assets.py]
   workflow_dispatch:
 
 concurrency: website
@@ -13,6 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      # The dashboard is built here, not committed: the build carries the AG Studio licence.
+      - name: Build the operations dashboard
+        working-directory: dashboard
+        env:
+          VITE_AG_STUDIO_LICENCE: ${{ secrets.AG_STUDIO_LICENCE }}
+        run: npm ci && npx tsc --noEmit && npm run build
       - name: Publish to the VM
         env:
           VM_DEPLOY_KEY: ${{ secrets.VM_DEPLOY_KEY }}
@@ -22,4 +33,5 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$VM_DEPLOY_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
           printf '%s\n' "$VM_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          python3 scripts/version-assets.py
           tar -czf - -C website . | ssh -i ~/.ssh/deploy ubuntu@"$VM_HOST" website

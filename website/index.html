@@ -15,7 +15,7 @@
     if (reduced || /[?&]static=1/.test(location.search)) root.classList.add("static");
   })();
 </script>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=1610757b96">
 </head>
 <body>
 
@@ -67,6 +67,7 @@
     </a>
     <nav class="nav-links" aria-label="Sections">
       <a href="#try">Try it</a>
+      <a href="/dashboard/">Dashboard</a>
       <a href="https://github.com/zunxo7/doyo">Code</a>
     </nav>
     <a class="btn btn-primary btn-small" href="https://api.letdoyo.com/ota/app.apk">Get the app</a>
@@ -80,16 +81,13 @@
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <h1 aria-label="Let Doyo do it for you.">
-        <span class="line"><span>Let Doyo</span></span>
+        <span class="line"><span>Let <span class="accent">Doyo</span></span></span>
         <span class="line"><span>do it</span></span>
         <span class="line"><span class="accent">for you.</span></span>
       </h1>
       <p class="lede fade-up">An AI agent that negotiates, books and pays for home services in Pakistan.</p>
       <div class="cta-row fade-up">
-        <a class="btn btn-primary" href="https://api.letdoyo.com/ota/app.apk">
-          <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Get the Android app
-        </a>
-        <a class="btn btn-secondary" href="https://github.com/zunxo7/doyo">View the code</a>
+        <a class="btn btn-primary hero-try" href="#try">Try it now<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </div>
     </div>
 
@@ -164,7 +162,6 @@
       <div class="chip-float chip-booked"><svg class="ico-16"><use href="#i-spark"/></svg>Booked at PKR 500</div>
     </div>
   </div>
-  <a class="scroll-hint" href="#services" aria-label="Scroll down"><svg class="ico-20" aria-hidden="true"><use href="#i-arrow"/></svg></a>
 </section>
 
 <!-- Services marquee -->
@@ -187,6 +184,44 @@
       <span>Roman Urdu</span><i></i><span>English</span><i></i><span>Urdu</span><i></i>
       <span>Roman Urdu</span><i></i><span>English</span><i></i><span>Urdu</span><i></i>
       <span>Roman Urdu</span><i></i><span>English</span><i></i><span>Urdu</span><i></i>
+    </div>
+  </div>
+</section>
+
+<!-- Operations dashboard -->
+<section class="section section-ops" id="dashboard">
+  <div class="wrap ops-grid">
+    <div class="ops-copy">
+      <h2 aria-label="Every rupee, live."><span class="line"><span>Every rupee,</span></span><span class="line"><span class="accent">live.</span></span></h2>
+      <p class="lede">Bookings, PayPal payouts and how far under budget Doyo booked, live. Ask Doyo for a chart and it builds it.</p>
+      <a class="btn btn-secondary ops-link" href="/dashboard/">Open the dashboard</a>
+    </div>
+    <div class="ops-board" aria-hidden="true">
+      <div class="ops-bar"><i></i><i></i><i></i><span>letdoyo.com/dashboard</span></div>
+      <div class="ops-kpis">
+        <div><span>Bookings</span><b data-count="13">13</b></div>
+        <div><span>Saved for customers</span><b class="accent" data-count="4050" data-prefix="PKR ">PKR 4,050</b></div>
+        <div><span>Paid by PayPal</span><b class="good" data-count="544" data-prefix="PKR ">PKR 544</b></div>
+      </div>
+      <div class="ops-row">
+        <div class="ops-card ops-ladder">
+          <span class="ops-title">Under the customer's limit</span>
+          <div class="rung"><p><b>Zara</b> Home cleaning <em>PKR 200 under</em></p><i style="--w: 71%"></i></div>
+          <div class="rung"><p><b>Zunnoon</b> Barber <em>PKR 210 under</em></p><i style="--w: 75%"></i></div>
+          <div class="rung"><p><b>Ayesha</b> Deep clean <em>PKR 250 under</em></p><i style="--w: 81%"></i></div>
+        </div>
+        <div class="ops-card ops-speed">
+          <span class="ops-title">Booking speed</span>
+          <div class="ops-dial">
+            <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="dial-bg"/><circle cx="60" cy="60" r="52" class="dial"/></svg>
+            <b><span data-count="16">16</span>s</b>
+          </div>
+        </div>
+      </div>
+      <div class="ops-ask">
+        <p class="q">Show me how offers end</p>
+        <p class="a"><b>Doyo</b>Added a donut to My charts: 12 accepted, 10 countered, 26 not chosen.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -223,6 +258,7 @@
     </div>
     <nav aria-label="Footer">
       <a href="https://api.letdoyo.com/ota/app.apk">Android app</a>
+      <a href="/dashboard/">Dashboard</a>
       <a href="https://github.com/zunxo7/doyo">Code on GitHub</a>
     </nav>
   </div>
@@ -230,6 +266,6 @@
 
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="assets/vendor/ScrollTrigger.min.js"></script>
-<script src="script.js"></script>
+<script src="script.js?v=1fb83ae1ef"></script>
 </body>
 </html>

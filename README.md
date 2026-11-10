@@ -15,6 +15,7 @@ the money through PayPal once the job is done.
 
 | | |
 |---|---|
+| Website | `https://letdoyo.com` |
 | Android app | `https://api.letdoyo.com/ota/app.apk` |
 | Sign in | Continue with Email → `judge@letdoyo.com` → code `1234` |
 | PayPal | Any PayPal **sandbox** personal account. Judges: one is in the Devpost testing notes. |
@@ -72,6 +73,22 @@ Doyo keeps 15% of each job. PayPal has no PKR, so sandbox amounts are converted 
 amount the customer and worker see is in PKR. The SDK has no Payouts controller, so that one call goes to the
 REST API directly.
 
+## Operations dashboard
+
+`https://letdoyo.com/dashboard/` is built on [AG Studio](https://www.ag-grid.com/studio/) and reads the same
+records live over the WebSocket.
+
+- **Pages:** Overview, Bookings, PayPal, and My charts.
+- **Doyo widgets:** six custom AG Studio widget types: the latest negotiation as a chat, where the money went
+  (charge → commission → payout), each booking against the customer's limit, top workers, an activity feed,
+  and booking speed.
+- **Ask Doyo:** an agent inside Studio's AI panel. It answers from the records with its own tools
+  (`explain_booking`, `payment_problems`, queries) and builds widgets with `add_chart`: bar, line, area,
+  stacked, pie, donut, funnel, KPI, gauge, table, or any Doyo widget, placed in the first free spot.
+  Charts animate, and My charts is kept in the browser.
+- The model call goes through the backend ([`backend/src/opsLlm.ts`](backend/src/opsLlm.ts)), so the API key
+  never reaches the browser.
+
 ## AI
 
 | Role | Model | Where |
@@ -79,6 +96,7 @@ REST API directly.
 | Booking agent | Claude Sonnet, tool use | [`backend/src/bookingAgent.ts`](backend/src/bookingAgent.ts) |
 | Request → booking plan | Claude Haiku, structured output | `planRequest` in the same file |
 | Simulated workers and their chat lines | Claude Haiku | [`backend/src/agents.ts`](backend/src/agents.ts) |
+| Dashboard assistant | Claude Sonnet, via AG Studio's agent framework | [`dashboard/src/App.tsx`](dashboard/src/App.tsx) |
 
 The booking agent runs a tool loop: `wait_for_offers`, `counter_offer`, `raise_price`, `accept_offer`,
 `hand_back`. Each tool call is an action on the live marketplace, and each carries the line Doyo says in the
@@ -94,15 +112,16 @@ chat. Guardrails:
 ```
 frontend/   Expo SDK 57 · React Native 0.86 · MapLibre · expo-updates
 backend/    Node 24 · TypeScript · Fastify · WebSockets · node:sqlite · zod
-website/    Marketing site, and the operations dashboard (AG Grid) under website/dashboard
-.github/    Workflows: deploy backend, publish app update, build APK
+dashboard/  Operations dashboard · React · Vite · AG Studio (builds into website/dashboard)
+website/    Marketing site · GSAP
+.github/    Workflows: deploy backend, publish app update, publish website, build APK
 ```
 
 - **Realtime:** one WebSocket per client; job rooms and the worker market are topics. No polling.
 - **App updates:** the backend implements the expo-updates protocol itself
   ([`backend/src/ota.ts`](backend/src/ota.ts)), so a push ships a new JS bundle to installed apps with no
   third-party service.
-- **Deploys:** GitHub Actions deploy to one VM over a key that can only run three commands.
+- **Deploys:** GitHub Actions deploy to one VM over a key that can only run four fixed actions.
 
 ## Run it yourself
 
@@ -131,7 +150,7 @@ npx expo run:android
 
 Claude (Sonnet, Haiku) · PayPal Server SDK (Orders, Vault), Payouts REST API · APIMatic Context Plugin
 (used in the editor for PayPal SDK lookups while building `paypal.ts`) · Expo, React Native, MapLibre ·
-Fastify · AG Grid · GitHub Actions · Claude Code
+Fastify · AG Studio · GSAP · GitHub Actions · Claude Code
 
 ## Where the code came from
 

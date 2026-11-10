@@ -137,6 +137,23 @@
     });
   });
 
+  /* ---------------- Operations: the board assembles, numbers count up, Doyo answers ---------------- */
+  gsap.from($$(".ops-copy h2 .line > span"), { yPercent: 115, duration: 1.1, stagger: 0.09, ease: "expo.out", scrollTrigger: { trigger: ".ops-copy", start: "top 80%" } });
+  gsap.from(".ops-copy .lede, .ops-link", { y: 24, autoAlpha: 0, duration: 0.8, stagger: 0.1, ease: "expo.out", scrollTrigger: { trigger: ".ops-copy", start: "top 75%" } });
+  var board = gsap.timeline({ defaults: { ease: "expo.out" }, scrollTrigger: { trigger: ".ops-board", start: "top 80%" } })
+    .from(".ops-board", { y: 80, autoAlpha: 0, duration: 1 })
+    .from(".ops-kpis > div", { y: 24, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, 0.3)
+    .from(".ops-row > div", { y: 24, autoAlpha: 0, duration: 0.7, stagger: 0.12 }, 0.5)
+    .fromTo(".rung i", { "--grow": 0 }, { "--grow": 1, duration: 1.1, stagger: 0.12, ease: "power3.out" }, 0.75)
+    .fromTo(".ops-dial .dial", { attr: { "stroke-dasharray": "0 327" } }, { attr: { "stroke-dasharray": "87 327" }, duration: 1.2, ease: "power3.out" }, 0.75)
+    .from(".ops-ask p", { y: 16, scale: 0.96, autoAlpha: 0, duration: 0.6, stagger: 0.7, ease: "back.out(1.6)" }, 1.4);
+  $$(".ops-board [data-count]").forEach(function (el) {
+    var to = Number(el.getAttribute("data-count"));
+    var prefix = el.getAttribute("data-prefix") || "";
+    var counter = { value: 0 };
+    board.to(counter, { value: to, duration: 1.4, ease: "power2.out", onUpdate: function () { el.textContent = prefix + Math.round(counter.value).toLocaleString("en-US"); } }, 0.35);
+  });
+
   gsap.from($$(".cta-copy h2 .line > span"), { yPercent: 115, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: ".cta-copy", start: "top 85%" } });
 
   gsap.from(".cta-card", { y: 80, autoAlpha: 0, duration: 1, ease: "expo.out", scrollTrigger: { trigger: ".cta-card", start: "top 88%" } });

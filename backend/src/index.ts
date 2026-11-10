@@ -7,6 +7,7 @@ import Fastify, { type FastifyRequest } from "fastify";
 import { z } from "zod";
 import { advanceDemo, startAgents } from "./agents.ts";
 import * as ops from "./ops.ts";
+import { runTurn, type TurnRequest } from "./opsLlm.ts";
 import { registerOta } from "./ota.ts";
 import { planRequest } from "./bookingAgent.ts";
 import * as paypal from "./paypal.ts";
@@ -264,6 +265,11 @@ app.post("/api/demo/worker", async req => {
 app.get("/api/ops/overview", async req => {
   if (!ops.isAdmin(actor(req))) throw new HttpError(403, "Sign in with a demo account to open the dashboard.");
   return ops.overview();
+});
+
+app.post("/api/ops/llm", { bodyLimit: 2_000_000 }, async req => {
+  if (!ops.isAdmin(actor(req))) throw new HttpError(403, "Sign in with a demo account to use the assistant.");
+  return runTurn(req.body as TurnRequest);
 });
 
 app.post("/api/agent/plan", async req => {

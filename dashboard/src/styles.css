@@ -1,0 +1,174 @@
+:root { --bg: #1d1d1d; --surface: #272727; --raised: #343434; --line: #3d3e40; --accent: #00baf0; --text-2: rgba(255, 255, 255, 0.62); --good: #2fd08a; --bad: #ff6b6b; --warn: #ffd400; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; background: var(--bg); color: #fff; font: 500 14px/1.45 "Montserrat", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+h1, p { margin: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.btn { height: 38px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.btn:disabled { opacity: 0.6; }
+.btn-ghost { background: var(--raised); }
+
+/* ---- Sign in ---- */
+.gate { min-height: 100%; display: grid; place-items: center; padding: 24px; }
+.gate-card { width: 100%; max-width: 380px; display: grid; gap: 14px; background: #2e2e30; border: 1px solid var(--line); border-radius: 24px; padding: 32px; }
+.gate-logo { width: 52px; height: 52px; border-radius: 14px; }
+.gate-card h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; }
+.gate-card p { color: var(--text-2); }
+.gate-card label { display: grid; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
+.gate-card input { height: 46px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: #fff; font: inherit; font-size: 15px; padding: 0 14px; }
+.gate-card .btn { height: 48px; margin-top: 6px; }
+.gate-card .gate-error { color: var(--bad); }
+
+/* ---- Shell ---- */
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: url("/assets/pattern.png") repeat; background-size: 380px; opacity: 0.05; z-index: 0; }
+#root { position: relative; z-index: 1; }
+.app { position: relative; height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: min(1280px, 100%); margin: 0 auto; padding: 20px 20px 14px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; letter-spacing: -0.03em; color: #fff; text-decoration: none; margin-right: 8px; }
+.brand .wordmark { width: 72px; height: 34px; }
+.brand span { font-size: 18px; padding-top: 4px; }
+.brand span { color: var(--accent); }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tab { height: 36px; padding: 0 16px; border-radius: 18px; border: 1px solid transparent; background: var(--surface); color: var(--text-2); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+.tab:hover { color: #fff; }
+.tab.active { background: rgba(0, 186, 240, 0.14); color: var(--accent); border-color: rgba(0, 186, 240, 0.34); }
+.spacer { flex: 1; }
+.live { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; color: var(--text-2); font-size: 12px; font-weight: 700; }
+.live i { width: 8px; height: 8px; border-radius: 4px; background: var(--warn); }
+.live.on i { background: var(--good); animation: ping 1.8s ease-out infinite; }
+@keyframes ping { from { box-shadow: 0 0 0 0 rgba(47, 208, 138, 0.6); } to { box-shadow: 0 0 0 9px rgba(47, 208, 138, 0); } }
+.btn-ask { background: rgba(0, 186, 240, 0.14); color: var(--accent); }
+.ghost { height: 38px; padding: 0 16px; border-radius: 19px; border: 1px solid var(--line); background: transparent; color: var(--text-2); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.ghost:hover, .ghost.active { color: #fff; border-color: var(--text-2); }
+.top .btn { border-radius: 19px; }
+.studio { min-height: 0; padding: 0 12px 12px; }
+.loading { height: 100%; display: grid; place-items: center; color: var(--text-2); }
+
+/* ---- Doyo widgets ---- */
+.dw { height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 0; overflow: hidden; font-size: 13px; }
+.dw-empty { align-items: center; justify-content: center; color: var(--text-2); text-align: center; }
+.dw-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.dw-head b { display: block; font-size: 15px; font-weight: 800; }
+.dw-head span { color: var(--text-2); font-size: 12px; }
+.dw-head em { flex: none; font-style: normal; font-size: 11.5px; font-weight: 700; height: 24px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 12px; background: rgba(47, 208, 138, 0.16); color: var(--good); }
+.dw-head em.live { background: rgba(0, 186, 240, 0.16); color: var(--accent); }
+.dw-limit { display: flex; justify-content: space-between; gap: 10px; padding: 10px 14px; border-radius: 12px; background: #1d1d1d; color: var(--text-2); font-size: 12px; }
+.dw-limit b { color: var(--accent); font-weight: 800; }
+.dw-thread { flex: 1; min-height: 0; overflow-y: auto; display: grid; align-content: start; gap: 8px; padding-right: 4px; }
+.msg { max-width: 88%; justify-self: start; border-radius: 16px; border-bottom-left-radius: 5px; background: #1d1d1d; padding: 9px 13px; }
+.msg small { display: block; color: var(--text-2); font-size: 11px; font-weight: 700; margin-bottom: 2px; }
+.msg.doyo { justify-self: end; background: rgba(0, 186, 240, 0.14); box-shadow: inset 0 0 0 1.5px var(--accent); border-radius: 16px; border-bottom-right-radius: 5px; }
+.msg.doyo small { color: var(--accent); }
+
+.dw-flow { flex-direction: row; align-items: stretch; gap: 12px; container-type: inline-size; }
+.flow-step { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; border-radius: 16px; background: #1d1d1d; padding: 14px 16px; overflow: hidden; }
+.flow-step + .flow-step::before { content: ""; position: absolute; left: -12px; top: 50%; width: 12px; height: 2px; background: var(--accent); }
+.flow-step span { color: var(--text-2); font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; line-height: 1.3; }
+.flow-step b { font-size: clamp(16px, 4.6cqi, 26px); line-height: 1.1; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.flow-step i { font-style: normal; font-size: 13px; font-weight: 600; line-height: 1.3; }
+.flow-step small { color: var(--text-2); font-size: 11px; line-height: 1.3; overflow-wrap: anywhere; }
+.flow-step.accent { background: var(--accent); }
+.flow-step.accent span, .flow-step.accent small { color: rgba(255, 255, 255, 0.85); }
+
+/* Studio draws widgets edge to edge; Doyo's cards breathe. */
+.ag-studio-layout-widget-container { padding: 20px 22px 22px !important; box-sizing: border-box; background-image: linear-gradient(rgba(46, 46, 48, 0.968), rgba(46, 46, 48, 0.968)), url("/assets/pattern.png") !important; background-size: auto, 300px auto !important; background-repeat: repeat !important; }
+.ag-studio-layout-widget-header { margin: 0 0 12px !important; }
+.ag-studio-layout-widget-title { letter-spacing: 0.01em; }
+
+/* Price ladder */
+.ladder { justify-content: space-between; gap: 12px; }
+.rung { display: grid; gap: 7px; }
+.rung-top { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.rung-top b { font-size: 13.5px; white-space: nowrap; }
+.rung-top span { color: var(--text-2); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rung-top em { margin-left: auto; font-style: normal; font-size: 12px; font-weight: 700; color: var(--good); white-space: nowrap; }
+.track { height: 10px; border-radius: 5px; background: #1d1d1d; overflow: hidden; }
+.track i { display: block; height: 100%; border-radius: 5px; background: linear-gradient(90deg, #0090bb, var(--accent)); }
+
+/* Worker leaderboard */
+.board { justify-content: space-between; gap: 10px; }
+.board-row { display: flex; align-items: center; gap: 12px; }
+.avatar { flex: none; width: 36px; height: 36px; border-radius: 18px; display: grid; place-items: center; background: #1d1d1d; color: var(--text-2); font-size: 12px; font-weight: 800; }
+.avatar.first { background: var(--accent); color: #fff; }
+.board-main { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.board-line { display: flex; justify-content: space-between; gap: 8px; }
+.board-line b { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.board-line strong { font-size: 13.5px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.board-line small { color: var(--text-2); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar { height: 4px; border-radius: 2px; background: #1d1d1d; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+
+/* Activity */
+.feed { list-style: none; margin: 0; padding: 2px 14px 0 4px; gap: 0; overflow-y: auto; }
+.feed li { position: relative; display: flex; align-items: flex-start; gap: 12px; padding: 0 0 14px 20px; font-size: 13px; line-height: 1.4; }
+.feed li::before { content: ""; position: absolute; left: 4px; top: 14px; bottom: 0; width: 2px; background: #3d3e40; }
+.feed li:last-child::before { display: none; }
+.feed li i { position: absolute; left: 0; top: 4px; width: 10px; height: 10px; border-radius: 5px; background: var(--text-2); box-shadow: 0 0 0 3px #2e2e30; }
+.feed li.booked i { background: var(--accent); }
+.feed li.paid i { background: #ffd400; }
+.feed li.payout i { background: var(--good); }
+.feed li.open i { background: var(--accent); animation: ping 1.8s ease-out infinite; }
+.feed li span { flex: 1; min-width: 0; }
+.feed li time { flex: none; color: var(--text-2); font-size: 11.5px; font-weight: 700; }
+
+/* Booking speed */
+.speed { align-items: center; justify-content: center; gap: 14px; }
+.speed-dial { position: relative; width: min(100%, 150px); aspect-ratio: 1; }
+.speed svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.speed circle { fill: none; stroke-width: 9; }
+.speed .ring-bg { stroke: #1d1d1d; }
+.speed .ring { stroke: var(--accent); stroke-linecap: round; }
+.speed-mid { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.speed-mid b { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.speed-mid span { color: var(--text-2); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 5px; }
+.speed p { margin: 0; color: var(--text-2); font-size: 12px; }
+.speed p b { color: #fff; }
+
+/* Tables sit on the card itself: no frame, no darker fill. The total row stays opaque so rows never show through it. */
+.ag-studio-layout-widget-container .ag-root-wrapper,
+.ag-studio-layout-widget-container .ag-root,
+.ag-studio-layout-widget-container .ag-body,
+.ag-studio-layout-widget-container .ag-body-viewport,
+.ag-studio-layout-widget-container .ag-center-cols-viewport,
+.ag-studio-layout-widget-container .ag-row:not(.ag-row-pinned) { background-color: transparent !important; }
+.ag-studio-layout-widget-container .ag-floating-bottom,
+.ag-studio-layout-widget-container .ag-row-pinned { background-color: #2e2e30 !important; }
+.ag-studio-layout-widget-container .ag-row-pinned { font-weight: 800; }
+.ag-studio-layout-widget-container .ag-header-cell-text { text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* Thin rounded scrollbars, no arrow buttons, everywhere in the dashboard. */
+* { scrollbar-width: thin; scrollbar-color: #4a4b4d transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #4a4b4d; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #5c5d60; }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+
+/* The header row is solid and set apart, so rows scroll under it rather than through it. */
+.ag-studio-layout-widget-container .ag-header { background-color: #2e2e30 !important; border-bottom: 1.5px solid #4a4b4d !important; }
+.ag-studio-layout-widget-container .ag-header-cell-text { color: rgba(255, 255, 255, 0.5); font-weight: 700; }
+
+/* Studio's own frame disappears: the canvas sits straight on the page and its pattern. */
+.studio .ag-studio-root-inner { background: transparent !important; border: 0 !important; }
+.studio .ag-studio-layout-canvas { background: transparent !important; }
+
+/* ---- Motion: each Doyo widget builds itself in once, items one after another ---- */
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes draw { from { stroke-dasharray: 0 var(--len); } to { stroke-dasharray: var(--arc) var(--len); } }
+@keyframes slide { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+.msg { animation: pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 120ms); }
+.flow-step { animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 160ms); }
+.flow-step + .flow-step::before { transform-origin: left; animation: grow 0.4s ease-out both; animation-delay: calc(var(--i, 0) * 160ms + 200ms); }
+.rung { animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.track i, .bar i { transform-origin: left; animation: grow 1s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 90ms + 150ms); }
+.board-row { animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.feed li { animation: slide 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 80ms); }
+.speed .ring { stroke-dasharray: var(--arc) var(--len); animation: draw 1.1s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.track i, .bar i, .flow-step, .msg { transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.board-row:hover .avatar, .rung:hover .track i { filter: brightness(1.15); }
+.flow-step { transition: transform 0.25s ease; }
+.flow-step:hover { transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) { .dw *, .dw { animation: none !important; } }

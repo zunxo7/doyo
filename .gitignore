@@ -5,4 +5,6 @@ paypal-sandbox-accounts.txt
 HANDOFF.md
 doyo-logo.zip
 node_modules/
-dashboard/
+/dashboard/node_modules/
+/dashboard/.env.local
+/website/dashboard/
