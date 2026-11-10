@@ -39,7 +39,7 @@ const SLIDES = [
     illustration: require("../assets/images/OnboardingPlan.webp"),
     titleWhite: "Let Doyo ",
     titleAccent: "Do It",
-    body: "Type what you need in English, Urdu or Roman Urdu. Doyo plans the job.",
+    body: "Home cleaning, car wash, shifting or a barber. Type it in English, Urdu or Roman Urdu and Doyo plans the job.",
   },
   {
     key: "2",
