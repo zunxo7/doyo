@@ -550,7 +550,7 @@ export default function AgentChat({
           if (item.kind === "agent") {
             return (
               <DoyoRow key={item.id}>
-                <View style={s.bubble}>
+                <View style={[s.bubble, s.bubbleAgent]}>
                   <Text style={[s.bubbleText, fontStyles.medium]}>{item.text}</Text>
                 </View>
               </DoyoRow>
@@ -644,7 +644,7 @@ export default function AgentChat({
           ) : (
             <Reanimated.View key={`${line.at}${line.text}`} entering={FadeInDown.duration(220)}>
               <DoyoRow>
-                <View style={s.bubble}>
+                <View style={[s.bubble, s.bubbleAgent]}>
                   <Text style={[s.bubbleText, fontStyles.medium]}>{line.text}</Text>
                 </View>
               </DoyoRow>
