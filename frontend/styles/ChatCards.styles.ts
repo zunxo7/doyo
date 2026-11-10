@@ -69,17 +69,6 @@ export const makeChatCardStyles = (c: Palette) =>
       fontSize: 12.5,
       marginBottom: 10,
     },
-    place: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 6,
-      marginTop: 14,
-    },
-    placeText: {
-      flex: 1,
-      color: c.white,
-      fontSize: 14,
-    },
     tiles: {
       flexDirection: "row",
       gap: 8,

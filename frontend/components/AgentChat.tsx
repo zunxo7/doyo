@@ -603,7 +603,6 @@ export default function AgentChat({
                 service={plan.service}
                 title={t(SERVICE_LABELS[plan.service])}
                 summary={summarizeJobDetails(details, "", t)}
-                address={address}
                 worker={t(plan.workerPreference)}
                 ask={price.ask}
                 limit={price.limit}

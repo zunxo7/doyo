@@ -1,6 +1,6 @@
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { MapPin, Star, UserCircle } from "phosphor-react-native";
+import { Star, UserCircle } from "phosphor-react-native";
 import { useT } from "../contexts/SettingsContext";
 import { useColors, useThemedStyles } from "../hooks/useColors";
 import { makeChatCardStyles } from "../styles/ChatCards.styles";
@@ -30,7 +30,6 @@ type JobProps = {
   service: keyof typeof SERVICE_IMAGES;
   title: string;
   summary: string;
-  address: string;
   worker: string;
   ask: number;
   limit: number;
@@ -43,7 +42,7 @@ type JobProps = {
 };
 
 /** The job Doyo is about to book: what, where, the price it opens at and never passes, and how it is paid. */
-export function JobCard({ service, title, summary, address, worker, ask, limit, payment, editable, busy, onTogglePayment, onChange, onBook }: JobProps) {
+export function JobCard({ service, title, summary, worker, ask, limit, payment, editable, busy, onTogglePayment, onChange, onBook }: JobProps) {
   const t = useT();
   const colors = useColors();
   const s = useThemedStyles(makeChatCardStyles);
@@ -66,13 +65,6 @@ export function JobCard({ service, title, summary, address, worker, ask, limit, 
           <Text style={[s.price, fontStyles.bold]}>PKR{ask.toLocaleString()}</Text>
           <Text style={[s.priceCaption, fontStyles.medium]}>{t("to start")}</Text>
         </View>
-      </View>
-
-      <View style={s.place}>
-        <MapPin size={15} color={colors.accent} weight="fill" />
-        <Text style={[s.placeText, fontStyles.medium]} numberOfLines={1}>
-          {address}
-        </Text>
       </View>
 
       <View style={s.tiles}>
