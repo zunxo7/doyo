@@ -113,12 +113,6 @@ export const makeAgentChatStyles = (c: Palette) =>
       paddingHorizontal: 14,
       paddingVertical: 10,
     },
-    // Doyo negotiating for the customer: outlined in their blue, but not their solid bubble.
-    bubbleAgent: {
-      backgroundColor: "rgba(0,186,240,0.14)",
-      borderWidth: 1.5,
-      borderColor: c.accent,
-    },
     bubbleText: {
       color: c.white,
       fontSize: 16,
