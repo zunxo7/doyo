@@ -1,30 +1,62 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppState } from "react-native";
 import * as Updates from "expo-updates";
 
+/** The restart onto a new update shows the splash, never expo's white default. */
+const RELOAD_SCREEN: Updates.ReloadScreenOptions = {
+  backgroundColor: "#1f1f1f",
+  image: require("../assets/splash-icon.png"),
+  imageResizeMode: "contain",
+  spinner: { enabled: false },
+  fade: true,
+};
+
+const restart = () => Updates.reloadAsync({ reloadScreenOptions: RELOAD_SCREEN }).catch(() => undefined);
+
 /**
- * Downloads a published update while the app is open and applies it when the app goes to the
- * background, so the restart never lands in the middle of what someone is doing.
+ * On opening the app, a published update downloads in front of the user with its progress and the app
+ * restarts onto it. An update found later, on coming back to the app, downloads quietly and applies
+ * when the app is next left, so it never interrupts what someone is doing.
  */
-export function useLiveUpdates(): void {
+export function useLiveUpdates(): { updating: boolean; progress: number } {
+  const [updating, setUpdating] = useState(false);
+  const { downloadProgress } = Updates.useUpdates();
+
   useEffect(() => {
     if (__DEV__ || !Updates.isEnabled) return;
     let ready = false;
-    const fetchLatest = async () => {
+    const latest = async () => {
+      const { isAvailable } = await Updates.checkForUpdateAsync();
+      return isAvailable;
+    };
+
+    void (async () => {
       try {
-        const { isAvailable } = await Updates.checkForUpdateAsync();
-        if (!isAvailable) return;
-        const { isNew } = await Updates.fetchUpdateAsync();
-        if (isNew) ready = true;
+        if (!(await latest())) return;
+        setUpdating(true);
+        await Updates.fetchUpdateAsync();
+        await restart();
       } catch {
         // Offline or no update server: keep running what is installed.
+        setUpdating(false);
       }
-    };
-    void fetchLatest();
+    })();
+
     const subscription = AppState.addEventListener("change", state => {
-      if (state === "active") void fetchLatest();
-      else if (state === "background" && ready) void Updates.reloadAsync().catch(() => undefined);
+      if (state === "active") {
+        void (async () => {
+          try {
+            if (await latest()) ready = (await Updates.fetchUpdateAsync()).isNew || ready;
+          } catch {
+            // Try again next time the app comes back.
+          }
+        })();
+      } else if (state === "background" && ready) {
+        void restart();
+      }
     });
     return () => subscription.remove();
   }, []);
+
+  return { updating, progress: downloadProgress ?? 0 };
 }

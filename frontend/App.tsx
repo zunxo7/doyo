@@ -52,6 +52,7 @@ import { getStoredSessionToken, getStoredUser, onUserChanged } from "./services/
 import { navigationRef, resetToSignIn } from "./navigation/navigationRef";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useLiveUpdates } from "./services/liveUpdates";
+import UpdateOverlay from "./components/UpdateOverlay";
 // Imported for its side effect: the background location task must be defined
 // at module scope before the OS can revive it into a headless JS context.
 import "./services/backgroundLocation";
@@ -231,7 +232,7 @@ function NotificationBootstrap() {
 }
 
 export default function App() {
-  useLiveUpdates();
+  const update = useLiveUpdates();
   useFonts({
     Montserrat_400Regular,
     Montserrat_500Medium,
@@ -297,6 +298,7 @@ export default function App() {
         <NotificationBootstrap />
         <AppShell />
       </SettingsProvider>
+      <UpdateOverlay visible={update.updating} progress={update.progress} />
     </ErrorBoundary>
   );
 }

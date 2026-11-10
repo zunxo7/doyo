@@ -151,14 +151,10 @@ export default function OnboardingScreen({ navigation }: Props) {
         role: account.type,
         gender: account.gender,
         onboardingStatus: lookup.status,
+        // Signing in always opens booking; workers switch with Worker mode in the menu.
+        mode: "customer",
       });
-      if (account.type === "customer") {
-        navigation.reset({ index: 0, routes: [{ name: "CustomerHome", params: { name: account.name ?? "" } }] });
-      } else if ((lookup.status || "").toLowerCase() === "approved") {
-        navigation.reset({ index: 0, routes: [{ name: "WorkerHome", params: { name: account.name } }] });
-      } else {
-        navigation.reset({ index: 0, routes: [{ name: "WorkerLocked", params: { status: lookup.status } }] });
-      }
+      navigation.reset({ index: 0, routes: [{ name: "CustomerHome", params: { name: account.name ?? "" } }] });
     } catch (error) {
       if (error instanceof GoogleSignInCancelled) return;
       const message = error instanceof Error ? error.message : t("Sign-in failed. Please try again.");

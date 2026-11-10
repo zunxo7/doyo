@@ -129,17 +129,10 @@ export default function OTPScreen({ navigation, route }: Props) {
           role: lookup.account.type,
           gender: lookup.account.gender,
           onboardingStatus: lookup.status,
+          // Signing in always opens booking; workers switch with Worker mode in the menu.
+          mode: "customer",
         });
-        const acct = lookup.account;
-        const status = (lookup.status || "").toLowerCase();
-        if (acct.type === "customer") {
-          navigation.reset({ index: 0, routes: [{ name: "CustomerHome", params: { name: acct.name ?? "" } }] });
-        } else if (status === "approved") {
-          // Already approved — skip the review screen entirely (no flash)
-          navigation.reset({ index: 0, routes: [{ name: "WorkerHome", params: { name: acct.name } }] });
-        } else {
-          navigation.reset({ index: 0, routes: [{ name: "WorkerLocked", params: { status: lookup.status } }] });
-        }
+        navigation.reset({ index: 0, routes: [{ name: "CustomerHome", params: { name: lookup.account.name ?? "" } }] });
         return;
       }
       navigation.navigate("Role", { uid: email, email, phone: "" });
