@@ -45,7 +45,7 @@ jobs:
         # x86_64 is included so the APK also runs on emulators.
         run: >
           ./gradlew assembleRelease --console=plain
-          -PreactNativeArchitectures=arm64-v8a,x86_64
+          -PreactNativeArchitectures=arm64-v8a
           "-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g"
       - uses: actions/upload-artifact@v4
         with:

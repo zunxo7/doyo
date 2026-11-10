@@ -13,7 +13,7 @@ Tell Doyo what you need. It negotiates with workers, books within your limit, an
 ## Links
 
 - Repo: https://github.com/zunxo7/doyo
-- Android app: https://api.letdoyo.com/ota/app.apk
+- Android app: https://api.letdoyo.com/ota/app.apk?v=37mb
 - Website: [url]
 - Video: [YouTube url]
 

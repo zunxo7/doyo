@@ -30,6 +30,14 @@ export const makeAgentChatStyles = (c: Palette) =>
       gap: 8,
       paddingHorizontal: 16,
     },
+    newChat: {
+      width: 46,
+      height: 46,
+      borderRadius: 23,
+      backgroundColor: SURFACE,
+      alignItems: "center",
+      justifyContent: "center",
+    },
     locationText: {
       flex: 1,
       color: c.white,
@@ -276,12 +284,12 @@ export const makeAgentChatStyles = (c: Palette) =>
       paddingBottom: 8,
     },
     chip: {
-      height: 38,
-      borderRadius: 19,
+      height: 44,
+      borderRadius: 22,
       borderWidth: 1,
       borderColor: RAISED,
       justifyContent: "center",
-      paddingHorizontal: 14,
+      paddingHorizontal: 18,
     },
     chipWithIcon: {
       flexDirection: "row",

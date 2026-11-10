@@ -117,6 +117,8 @@ export function registerOta(app: FastifyInstance): void {
     if (!existsSync(apk)) return reply.status(404).send({ error: "No build yet." });
     return reply
       .header("content-disposition", 'attachment; filename="doyo.apk"')
+      // A new build replaces this file in place, so no cache may keep the old one.
+      .header("cache-control", "no-store")
       .type("application/vnd.android.package-archive")
       .send(readFileSync(apk));
   });

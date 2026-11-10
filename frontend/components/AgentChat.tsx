@@ -12,7 +12,7 @@ import Reanimated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CaretDown, List, MapPin, PaperPlaneRight, SquaresFour, Star, UserCircle } from "phosphor-react-native";
+import { CaretDown, List, MapPin, NotePencil, PaperPlaneRight, SquaresFour, Star, UserCircle } from "phosphor-react-native";
 import AppIcon from "./AppIcon";
 import ChatServicesSheet from "./ChatServicesSheet";
 import PayPalCheckout from "./PayPalCheckout";
@@ -187,6 +187,8 @@ export default function AgentChat({
   const askRef = useRef(0);
   const shown = useSharedValue(visible ? 1 : 0);
   const scrollRef = useRef<ScrollView>(null);
+  // Whether the thread is showing its newest message, so a resize (the keyboard) keeps it there.
+  const atBottom = useRef(true);
   const inputRef = useRef<TextInput>(null);
 
   const price = useMemo(() => {
@@ -436,6 +438,16 @@ export default function AgentChat({
     say("doyo", t("No problem, nothing was charged. Tap Book it when you're ready."));
   };
 
+  /** Starts over with an empty thread. Only offered when no booking is in progress. */
+  const newChat = () => {
+    Keyboard.dismiss();
+    paypalReady.current = null;
+    setText("");
+    setPlan(null);
+    setItems([]);
+    clearBooking();
+  };
+
   const takeOver = () => {
     if (!request) return;
     setAgent(current => (current ? { ...current, status: "stopped" } : current));
@@ -489,6 +501,17 @@ export default function AgentChat({
           </Text>
           {composerOpen ? <CaretDown size={14} color={colors.whiteSubtle} weight="bold" /> : null}
         </TouchableOpacity>
+        {stage === "planning" && !request && !thinking && items.length > 0 ? (
+          <TouchableOpacity
+            style={s.newChat}
+            activeOpacity={0.8}
+            onPress={newChat}
+            accessibilityLabel={t("New chat")}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <NotePencil size={22} color={colors.white} weight="bold" />
+          </TouchableOpacity>
+        ) : null}
       </View>
 
       <ScrollView
@@ -498,6 +521,13 @@ export default function AgentChat({
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+        onLayout={() => {
+          if (atBottom.current) scrollRef.current?.scrollToEnd({ animated: false });
+        }}
+        onScroll={({ nativeEvent: { contentOffset, contentSize, layoutMeasurement } }) => {
+          atBottom.current = contentOffset.y + layoutMeasurement.height >= contentSize.height - 40;
+        }}
+        scrollEventThrottle={100}
       >
         {items.length === 0 ? (
           <Reanimated.View entering={FadeIn.duration(400)} style={s.welcome}>

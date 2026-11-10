@@ -81,7 +81,8 @@
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "extraProguardRules": "# MapLibre native bindings (JNI + reflection)\n-keep class org.maplibre.** { *; }\n-dontwarn org.maplibre.**\n# Keep JS engine exception names readable in crash reports\n-keepattributes SourceFile,LineNumberTable\n-renamesourcefileattribute SourceFile\n\n# --- R8 optimization is ON (proguard-android-optimize.txt) ---\n# Optimization passes inline methods and merge classes, which breaks anything\n# the runtime resolves by NAME rather than by reference: JNI natives, the\n# @DoNotStrip members React Native and Fresco call from C++, and the Expo\n# module registry. Shrinking alone never touched these; optimization does.\n-keepclasseswithmembernames,includedescriptorclasses class * { native <methods>; }\n-keep @com.facebook.proguard.annotations.DoNotStrip class * { *; }\n-keepclassmembers class * { @com.facebook.proguard.annotations.DoNotStrip *; }\n-keepclassmembers class * { @com.facebook.common.internal.DoNotStrip *; }\n-keep class com.facebook.jni.** { *; }\n-keep class com.facebook.hermes.** { *; }\n# Expo looks modules and their exported functions up by name at runtime.\n-keep class * extends expo.modules.kotlin.modules.Module { *; }\n-keep class expo.modules.** { *; }\n-dontwarn expo.modules.**",
-            "enableMinifyInReleaseBuilds": true
+            "enableMinifyInReleaseBuilds": true,
+            "useLegacyPackaging": true
           }
         }
       ],
