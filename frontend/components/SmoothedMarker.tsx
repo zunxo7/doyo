@@ -1,11 +1,11 @@
 import type { ReactElement } from "react";
-import { ViewAnnotation } from "@maplibre/maplibre-react-native";
+import { Marker } from "@maplibre/maplibre-react-native";
 import { WorkerSymbol } from "./RouteDrive";
 import { useSmoothedPosition } from "../hooks/useSmoothedPosition";
 import type { LngLat } from "../services/routing";
 
 type Props = {
-  /** Stable annotation id, as ViewAnnotation requires. */
+  /** Stable marker id. */
   id: string;
   /** The raw position to glide towards, or null to hide the marker. */
   target: LngLat | null;
@@ -31,9 +31,9 @@ export default function SmoothedMarker({ id, target, children }: Props) {
   if (!position) return null;
 
   return (
-    <ViewAnnotation id={id} lngLat={position}>
+    <Marker id={id} lngLat={position}>
       {children}
-    </ViewAnnotation>
+    </Marker>
   );
 }
 

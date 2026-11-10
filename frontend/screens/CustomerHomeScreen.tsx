@@ -78,8 +78,8 @@ import {
   GeoJSONSource,
   Layer,
   Map,
+  Marker,
   type ViewStateChangeEvent,
-  ViewAnnotation,
 } from "@maplibre/maplibre-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Defs, RadialGradient, Stop, Circle, Rect, SvgXml } from "react-native-svg";
@@ -1589,11 +1589,11 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
           </GeoJSONSource>
         ) : null}
         {mode === "tracking" ? (
-          <ViewAnnotation id="tracking-customer" lngLat={location.coordinates}>
+          <Marker id="tracking-customer" lngLat={location.coordinates}>
             <View style={ts.homeMarker}>
               <House size={18} color={colors.paper} weight="fill" />
             </View>
-          </ViewAnnotation>
+          </Marker>
         ) : null}
         {mode === "tracking" && trackingWorkerLocation ? (
           demoDrive ? null : <SmoothedPoint id="tracking-worker" target={trackingWorkerLocation} />
