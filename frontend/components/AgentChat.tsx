@@ -190,11 +190,6 @@ export default function AgentChat({
   const askRef = useRef(0);
   const shown = useSharedValue(visible ? 1 : 0);
   const scrollRef = useRef<ScrollView>(null);
-  // Whether the thread is showing its newest message, so a resize (the keyboard) keeps it there.
-  const atBottom = useRef(true);
-  // Set when the keyboard opens or closes while the newest message is in view; the resize that
-  // follows must not count as scrolling away, and ends with the thread back at the bottom.
-  const stickToEnd = useRef(false);
   const inputRef = useRef<TextInput>(null);
 
   const price = useMemo(() => {
@@ -219,14 +214,8 @@ export default function AgentChat({
   const say = (kind: "me" | "doyo", line: string) => setItems(current => [...current, { id: nextId.current++, kind, text: line }]);
 
   useEffect(() => {
-    const show = Keyboard.addListener("keyboardDidShow", event => {
-      stickToEnd.current = atBottom.current;
-      setKeyboardHeight(event.endCoordinates.height);
-    });
-    const hide = Keyboard.addListener("keyboardDidHide", () => {
-      stickToEnd.current = atBottom.current;
-      setKeyboardHeight(0);
-    });
+    const show = Keyboard.addListener("keyboardDidShow", event => setKeyboardHeight(event.endCoordinates.height));
+    const hide = Keyboard.addListener("keyboardDidHide", () => setKeyboardHeight(0));
     return () => {
       show.remove();
       hide.remove();
@@ -532,22 +521,6 @@ export default function AgentChat({
         contentContainerStyle={s.threadContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
-        onLayout={() => {
-          if (!stickToEnd.current && !atBottom.current) return;
-          scrollRef.current?.scrollToEnd({ animated: false });
-          // Once more after the frame settles, so the final size is the one we end at.
-          requestAnimationFrame(() => {
-            scrollRef.current?.scrollToEnd({ animated: false });
-            stickToEnd.current = false;
-            atBottom.current = true;
-          });
-        }}
-        onScroll={({ nativeEvent: { contentOffset, contentSize, layoutMeasurement } }) => {
-          if (stickToEnd.current) return;
-          atBottom.current = contentOffset.y + layoutMeasurement.height >= contentSize.height - 40;
-        }}
-        scrollEventThrottle={100}
       >
         {items.length === 0 ? (
           <Reanimated.View entering={FadeIn.duration(400)} style={s.welcome}>

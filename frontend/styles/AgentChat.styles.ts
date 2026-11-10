@@ -43,11 +43,15 @@ export const makeAgentChatStyles = (c: Palette) =>
       color: c.white,
       fontSize: 14.5,
     },
+    // Inverted, like React Native's inverted lists: scroll position 0 is the newest message, so the
+    // keyboard resizing the thread, or a new message arriving, never moves it out of view.
     thread: {
       flex: 1,
+      transform: [{ scaleY: -1 }],
     },
     threadContent: {
       flexGrow: 1,
+      transform: [{ scaleY: -1 }],
       justifyContent: "flex-end",
       gap: 10,
       paddingHorizontal: 14,
