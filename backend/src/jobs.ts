@@ -310,7 +310,8 @@ export function updateAgent(
 export function stopAgent(jobId: string, customerId: string): void {
   const job = getJob(jobId);
   assertCustomer(job, customerId);
-  if (job.agent?.status === "working") updateAgent(jobId, { status: "stopped" }, "You took over.");
+  // The status bar shows the customer is choosing; a chat line would only shove the thread up.
+  if (job.agent?.status === "working") updateAgent(jobId, { status: "stopped" });
 }
 
 /** Hands negotiation back to Doyo after the customer took over. Returns whether it restarted. */
