@@ -131,6 +131,8 @@ function DoyoRow({ children }: { children: React.ReactNode }) {
 
 type Props = {
   visible: boolean;
+  /** Appear at once instead of fading in, so nothing behind the chat shows through on the way. */
+  instant?: boolean;
   pricing: AppConfig["pricing"];
   address: string;
   coordinates: [number, number];
@@ -146,6 +148,7 @@ type Props = {
 /** The customer's home: one conversation from the first request to a booked worker. */
 export default function AgentChat({
   visible,
+  instant = false,
   pricing,
   address,
   coordinates,
@@ -203,7 +206,7 @@ export default function AgentChat({
   const fadeStyle = useAnimatedStyle(() => ({ opacity: shown.value, transform: [{ translateY: (1 - shown.value) * 14 }] }));
 
   useEffect(() => {
-    shown.value = withTiming(visible ? 1 : 0, { duration: 260, easing: Easing.out(Easing.cubic) });
+    shown.value = visible && instant ? 1 : withTiming(visible ? 1 : 0, { duration: 260, easing: Easing.out(Easing.cubic) });
   }, [visible, shown]);
 
   useEffect(() => {
@@ -546,16 +549,11 @@ export default function AgentChat({
           }
           if (item.kind === "agent") {
             return (
-              <View key={item.id} style={[s.row, s.rowAgent]}>
-                <View style={s.avatar}>
-                  <AppIcon size={30} />
+              <DoyoRow key={item.id}>
+                <View style={s.bubble}>
+                  <Text style={[s.bubbleText, fontStyles.medium]}>{item.text}</Text>
                 </View>
-                <View style={[s.rowBody, s.rowBodyAgent]}>
-                  <View style={[s.bubble, s.bubbleAgent]}>
-                    <Text style={[s.bubbleText, fontStyles.medium]}>{item.text}</Text>
-                  </View>
-                </View>
-              </View>
+              </DoyoRow>
             );
           }
           if (item.kind === "worker") {
@@ -644,16 +642,12 @@ export default function AgentChat({
               </View>
             </Reanimated.View>
           ) : (
-            // Doyo speaks for the customer here, so it sits on the customer's side.
-            <Reanimated.View key={`${line.at}${line.text}`} entering={FadeInDown.duration(220)} style={[s.row, s.rowAgent]}>
-              <View style={s.avatar}>
-                <AppIcon size={30} />
-              </View>
-              <View style={[s.rowBody, s.rowBodyAgent]}>
-                <View style={[s.bubble, s.bubbleAgent]}>
+            <Reanimated.View key={`${line.at}${line.text}`} entering={FadeInDown.duration(220)}>
+              <DoyoRow>
+                <View style={s.bubble}>
                   <Text style={[s.bubbleText, fontStyles.medium]}>{line.text}</Text>
                 </View>
-              </View>
+              </DoyoRow>
             </Reanimated.View>
           ),
         )}
@@ -699,18 +693,9 @@ export default function AgentChat({
         ) : null}
 
         {showTyping ? (
-          negotiating ? (
-            <View style={[s.row, s.rowAgent]}>
-              <View style={s.avatar}>
-                <AppIcon size={30} />
-              </View>
-              <TypingDots />
-            </View>
-          ) : (
-            <DoyoRow>
-              <TypingDots />
-            </DoyoRow>
-          )
+          <DoyoRow>
+            <TypingDots />
+          </DoyoRow>
         ) : null}
       </ScrollView>
 

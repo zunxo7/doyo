@@ -312,6 +312,8 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
   // ---- Screen modes (one persistent map, only the UI swaps out) ----
   type Mode = "view" | "edit" | "offers" | "tracking";
   const [mode, setMode] = useState<Mode>("view");
+  // Coming back from a finished job, the chat replaces the tracking screen at once rather than fading in over the map.
+  const [chatInstant, setChatInstant] = useState(false);
   const [viewUiVisible, setViewUiVisible] = useState(true);
   // Within "view" mode: pick a service first, then personalize it.
   const [step, setStep] = useState<"choose" | "personalize">("choose");
@@ -625,6 +627,7 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
   };
 
   const enterEditMode = () => {
+    setChatInstant(false);
     searchSessionToken.current = createPlacesSessionToken();
     pickedPlaceRef.current = null;
     editCenterRef.current = location.coordinates;
@@ -1386,6 +1389,7 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
     trackingTranslateY.value = SCREEN_H;
     setTrackingPanelH(0);
     setTrackingPeekH(0);
+    setChatInstant(true);
     setMode("view");
   };
 
@@ -2658,6 +2662,7 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
 
       <AgentChat
         visible={mode === "view" && step === "choose"}
+        instant={chatInstant}
         pricing={appConfig.pricing}
         address={location.address}
         coordinates={location.coordinates}
