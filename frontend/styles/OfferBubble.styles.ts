@@ -69,6 +69,9 @@ export const makeOfferBubbleStyles = (c: Palette) =>
       lineHeight: 21,
       marginTop: 9,
     },
+    messagePrice: {
+      color: c.accent,
+    },
     actions: {
       flexDirection: "row",
       gap: 9,

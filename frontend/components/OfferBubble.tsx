@@ -17,6 +17,27 @@ export type OfferLine = {
   minutesAway?: number;
 };
 
+// "PKR 470", "PKR1,200", "Rs. 500" and the like, so a price stands out wherever a worker says it.
+const PRICE = /((?:PKR|Rs\.?)\s?\d[\d,]*)/gi;
+
+/** The message with every price in it picked out. */
+function WithPrices({ text, style, priceStyle }: { text: string; style: object; priceStyle: object }) {
+  const parts = text.split(PRICE);
+  return (
+    <Text style={style}>
+      {parts.map((part, index) =>
+        index % 2 === 1 ? (
+          <Text key={index} style={priceStyle}>
+            {part}
+          </Text>
+        ) : (
+          part
+        ),
+      )}
+    </Text>
+  );
+}
+
 type Props = {
   line: OfferLine;
   /** Shown while this is the worker's live offer and the customer is choosing. */
@@ -65,7 +86,7 @@ export default function OfferBubble({ line, onCounter, onAccept, superseded = fa
             <Text style={[s.price, fontStyles.bold, superseded && s.priceGone]}>PKR{line.price.toLocaleString()}</Text>
           ) : null}
         </View>
-        <Text style={[s.message, fontStyles.medium]}>{line.text}</Text>
+        <WithPrices text={line.text} style={[s.message, fontStyles.medium]} priceStyle={[s.messagePrice, fontStyles.bold]} />
         {actionable ? (
           <View style={s.actions}>
             <TouchableOpacity style={s.counter} activeOpacity={0.85} onPress={onCounter}>
