@@ -7,7 +7,8 @@ export const makeLegalOverlayStyles = (c: Palette) =>
       flex: 1,
     },
     header: {
-      paddingHorizontal: 18,
+      paddingLeft: 24,
+      paddingRight: 18,
       paddingBottom: 8,
       flexDirection: "row",
       alignItems: "center",
@@ -16,14 +17,10 @@ export const makeLegalOverlayStyles = (c: Palette) =>
     headerTitle: {
       flex: 1,
       color: c.white,
-      fontSize: 20,
+      fontSize: 24,
     },
     headerSpacer: {
       width: 28,
-    },
-    headerLeadingSpacer: {
-      width: 48,
-      height: 48,
     },
     backBtn: {
       width: 48,

@@ -274,8 +274,15 @@ app.post("/api/ops/llm", { bodyLimit: 2_000_000 }, async req => {
 
 app.post("/api/agent/plan", async req => {
   actor(req);
-  const { text, plan } = z.object({ text: z.string().trim().min(1).max(300), plan: z.record(z.string(), z.unknown()).nullish() }).parse(req.body);
-  return planRequest(text, plan ?? undefined);
+  const { text, plan, recent, usualPrice } = z
+    .object({
+      text: z.string().trim().min(1).max(300),
+      plan: z.record(z.string(), z.unknown()).nullish(),
+      recent: z.array(z.object({ from: z.enum(["customer", "doyo"]), text: z.string().max(400) })).max(8).optional(),
+      usualPrice: z.number().int().positive().max(10_000_000).optional(),
+    })
+    .parse(req.body);
+  return planRequest(text, plan ?? undefined, recent, usualPrice);
 });
 
 app.post("/api/jobs", async req => {

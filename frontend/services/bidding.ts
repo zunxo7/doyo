@@ -433,8 +433,10 @@ export async function raiseJobPrice(jobId: string, _customerId: string, price: n
   await sendJson("POST", jobPath(jobId, "/price"), { price });
 }
 
-export function planAgentRequest(text: string, plan: AgentPlan | null): Promise<AgentPlan> {
-  return sendJson<AgentPlan>("POST", "/api/agent/plan", { text, plan });
+export type ChatLine = { from: "customer" | "doyo"; text: string };
+
+export function planAgentRequest(text: string, plan: AgentPlan | null, recent: ChatLine[] = [], usualPrice?: number): Promise<AgentPlan> {
+  return sendJson<AgentPlan>("POST", "/api/agent/plan", { text, plan, recent, usualPrice });
 }
 
 export async function stopJobAgent(jobId: string): Promise<void> {

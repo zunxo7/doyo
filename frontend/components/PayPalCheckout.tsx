@@ -14,12 +14,14 @@ const CHECKOUT_BG = "#ffffff";
 
 type Props = {
   url: string | null;
+  /** Shows the sheet with a spinner before the PayPal page's address is known. */
+  opening?: boolean;
   title?: string;
   onApproved: () => void;
   onCancel: () => void;
 };
 
-export default function PayPalCheckout({ url, title, onApproved, onCancel }: Props) {
+export default function PayPalCheckout({ url, opening = false, title, onApproved, onCancel }: Props) {
   const t = useT();
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -42,7 +44,7 @@ export default function PayPalCheckout({ url, title, onApproved, onCancel }: Pro
   };
 
   return (
-    <Modal visible={Boolean(url)} animationType="slide" onRequestClose={onCancel}>
+    <Modal visible={Boolean(url) || opening} animationType="slide" onRequestClose={onCancel}>
       <View style={[styles.wrap, { paddingTop: insets.top + 8, backgroundColor: colors.navy }]}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.white }, fontStyles.bold]}>{title ?? t("Pay with PayPal")}</Text>
@@ -56,20 +58,27 @@ export default function PayPalCheckout({ url, title, onApproved, onCancel }: Pro
             onShouldStartLoadWithRequest={request => watch(request.url)}
             onNavigationStateChange={state => void watch(state.url)}
             startInLoadingState
-            renderLoading={() => (
-              <View style={[StyleSheet.absoluteFill, styles.loading]}>
-                <ActivityIndicator color={colors.accent} />
-              </View>
-            )}
+            renderLoading={() => <Opening label={t("Opening PayPal…")} color={colors.accent} />}
             javaScriptEnabled
             domStorageEnabled
             incognito
             setSupportMultipleWindows={false}
             style={styles.web}
           />
-        ) : null}
+        ) : (
+          <Opening label={t("Opening PayPal…")} color={colors.accent} />
+        )}
       </View>
     </Modal>
+  );
+}
+
+function Opening({ label, color }: { label: string; color: string }) {
+  return (
+    <View style={[StyleSheet.absoluteFill, styles.loading]}>
+      <ActivityIndicator color={color} size="large" />
+      <Text style={[styles.loadingText, fontStyles.medium]}>{label}</Text>
+    </View>
   );
 }
 
@@ -90,7 +99,12 @@ const styles = StyleSheet.create({
   loading: {
     alignItems: "center",
     justifyContent: "center",
+    gap: 14,
     backgroundColor: CHECKOUT_BG,
+  },
+  loadingText: {
+    color: "#545d68",
+    fontSize: 15,
   },
   web: {
     backgroundColor: CHECKOUT_BG,

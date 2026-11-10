@@ -172,6 +172,7 @@ export default function AgentChat({
   const [stage, setStage] = useState<Stage>(draft?.request ? "live" : "planning");
   const canType = stage === "planning" || stage === "live";
   const [paypalUrl, setPaypalUrl] = useState<string | null>(null);
+  const [paypalOpening, setPaypalOpening] = useState(false);
   const [request, setRequest] = useState<{ jobId: string; customerId: string } | null>(draft?.request ?? null);
   const [agent, setAgent] = useState<JobAgent | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
@@ -180,6 +181,8 @@ export default function AgentChat({
   const [servicesOpen, setServicesOpen] = useState(false);
   const nextId = useRef((draft?.items.at(-1)?.id ?? 0) + 1);
   const linkId = useRef<string | null>(null);
+  // Prepared while the plan card is on screen, so Book it opens PayPal without waiting on it.
+  const paypalReady = useRef<Promise<{ linked: boolean; id?: string; url?: string; at: number }> | null>(null);
   const cancelling = useRef(false);
   const askRef = useRef(0);
   const shown = useSharedValue(visible ? 1 : 0);
@@ -285,10 +288,15 @@ export default function AgentChat({
     const message = line.trim();
     if (!message || thinking || !canType) return;
     setText("");
+    // The planner reads the message in context: the chat so far and what the current job usually costs.
+    const recent = items
+      .filter((item): item is ChatItem & { text: string } => item.kind === "me" || item.kind === "doyo")
+      .slice(-6)
+      .map(item => ({ from: item.kind === "me" ? ("customer" as const) : ("doyo" as const), text: item.text }));
     say("me", message);
     setThinking(true);
     try {
-      const next = await planAgentRequest(message, plan);
+      const next = await planAgentRequest(message, plan, recent, plan ? quote(plan, pricing) || undefined : undefined);
       if (next.cancel) {
         await dropRequest();
         setPlan(null);
@@ -356,6 +364,24 @@ export default function AgentChat({
     }
   };
 
+  const preparePayPal = () => {
+    const prepared = (async () => {
+      const { linked } = await getPayPalLink();
+      if (linked) return { linked, at: Date.now() };
+      const session = await startPayPalLink();
+      return { linked, id: session.id, url: session.checkoutUrl, at: Date.now() };
+    })();
+    prepared.catch(() => {
+      if (paypalReady.current === prepared) paypalReady.current = null;
+    });
+    paypalReady.current = prepared;
+    return prepared;
+  };
+
+  useEffect(() => {
+    if (plan && payment === "PayPal" && stage === "planning" && !paypalReady.current) void preparePayPal().catch(() => undefined);
+  }, [plan, payment, stage]);
+
   const book = async () => {
     if (!plan || stage !== "planning") return;
     Keyboard.dismiss();
@@ -364,16 +390,22 @@ export default function AgentChat({
       await postJob();
       return;
     }
+    // The sheet opens at once and shows PayPal loading, rather than nothing happening.
+    setPaypalOpening(true);
     try {
-      const { linked } = await getPayPalLink();
-      if (linked) {
+      const fresh = paypalReady.current && (await paypalReady.current.catch(() => null));
+      // A prepared PayPal page is only reused while it is recent; PayPal expires them.
+      const ready = fresh && Date.now() - fresh.at < 10 * 60 * 1000 ? fresh : await preparePayPal();
+      paypalReady.current = null;
+      if (ready.linked) {
+        setPaypalOpening(false);
         await postJob();
         return;
       }
-      const session = await startPayPalLink();
-      linkId.current = session.id;
-      setPaypalUrl(session.checkoutUrl);
+      linkId.current = ready.id ?? null;
+      setPaypalUrl(ready.url ?? null);
     } catch (error) {
+      setPaypalOpening(false);
       setStage("planning");
       say("doyo", error instanceof Error && error.message ? error.message : t("I couldn't open PayPal. Please try again."));
     }
@@ -381,6 +413,7 @@ export default function AgentChat({
 
   const linkApproved = async () => {
     setPaypalUrl(null);
+    setPaypalOpening(false);
     const id = linkId.current;
     if (!id) return;
     setThinking(true);
@@ -398,6 +431,7 @@ export default function AgentChat({
 
   const linkCancelled = () => {
     setPaypalUrl(null);
+    setPaypalOpening(false);
     setStage("planning");
     say("doyo", t("No problem, nothing was charged. Tap Book it when you're ready."));
   };
@@ -711,7 +745,7 @@ export default function AgentChat({
         </View>
       ) : null}
 
-      <PayPalCheckout url={paypalUrl} title={t("Link PayPal")} onApproved={() => void linkApproved()} onCancel={linkCancelled} />
+      <PayPalCheckout url={paypalUrl} opening={paypalOpening} title={t("Link PayPal")} onApproved={() => void linkApproved()} onCancel={linkCancelled} />
       <ChatServicesSheet
         visible={servicesOpen}
         pricing={pricing}

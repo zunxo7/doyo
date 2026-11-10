@@ -23,7 +23,6 @@ export default function LegalOverlay({ visible, onClose }: Props) {
       <ScreenBackground variant="sheet" showPattern patternOpacity={0.022} hideOrbs>
         <View style={[s.wrap, { paddingTop: insets.top + 8 }]}>
           <View style={s.header}>
-            <View style={s.headerLeadingSpacer} />
             <Text style={[s.headerTitle, fontStyles.bold]} numberOfLines={2}>
               {DEMO_NOTICE.title}
             </Text>
