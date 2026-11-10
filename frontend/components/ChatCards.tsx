@@ -12,7 +12,7 @@ export function CardPattern() {
     <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}>
       <Image
         source={require("../assets/images/BackgroundPatternNeutral.png")}
-        style={{ position: "absolute", top: -40, left: -30, width: 352, height: 768, opacity: 0.06 }}
+        style={{ position: "absolute", top: -40, left: -30, width: 352, height: 768, opacity: 0.035 }}
         resizeMode="cover"
       />
     </View>
