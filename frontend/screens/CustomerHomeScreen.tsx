@@ -76,6 +76,7 @@ import {
   Camera,
   type CameraRef,
   GeoJSONSource,
+  Images,
   Layer,
   Map,
   type ViewStateChangeEvent,
@@ -88,6 +89,7 @@ import FadeInView from "../components/FadeInView";
 import DemoFlowBar, { DEMO_BAR_HEIGHT } from "../components/DemoFlowBar";
 import LaunchCountdown from "../components/LaunchCountdown";
 import SmoothedMarker, { SmoothedPoint } from "../components/SmoothedMarker";
+import RouteDrive, { WORKER_MARKER_IMAGE } from "../components/RouteDrive";
 import MenuDrawer from "../components/MenuDrawer";
 import AgentChat from "../components/AgentChat";
 import PayPalCheckout from "../components/PayPalCheckout";
@@ -119,6 +121,7 @@ import {
   uploadCustomerPhoto,
   type JobDetails,
   type JobSnapshot,
+  advanceReviewDemo,
 } from "../services/bidding";
 import { avatarOwnerKeyFor, getAvatar } from "../services/avatar";
 import { syncPushNotifications } from "../services/notifications";
@@ -259,6 +262,9 @@ function formatDistance(meters: number, t: (k: string, p?: Record<string, string
   return t("{n} m", { n: Math.max(0, Math.round(meters)) });
 }
 
+// How long the demo worker takes to drive to the customer.
+const DEMO_DRIVE_MS = 10_000;
+
 export default function CustomerHomeScreen({ navigation, route }: Props) {
   const { name } = route.params;
   const fonts = useFontFamilies();
@@ -302,6 +308,8 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
   const [trackingJob, setTrackingJob] = useState<JobSnapshot | null>(null);
   const [trackingWorkerLocation, setTrackingWorkerLocation] = useState<LngLat | null>(null);
   const [trackingRoute, setTrackingRoute] = useState<TrackingRoute | null>(null);
+  // The demo worker's drive, run on the route as drawn; null when nobody is driving.
+  const [demoDrive, setDemoDrive] = useState<LngLat[] | null>(null);
   const [completion, setCompletion] = useState<"none" | "completed" | "rating">("none");
   const notifiedTrackingJobRef = useRef<string | null>(null);
   const unreadChat = useUnreadChat(activeJobRequest?.jobId, activeJobRequest?.customerId, "customer");
@@ -1371,6 +1379,17 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
     transform: [{ translateY: (1 - cancelAnim.value) * 420 }],
   }));
 
+  /** The demo worker drives the drawn route, then the server is told they arrived. */
+  const driveThenArrive = async () => {
+    const path = trackingRoute?.coordinates;
+    if (path && path.length > 1) {
+      setDemoDrive(path);
+      await new Promise(resolve => setTimeout(resolve, DEMO_DRIVE_MS));
+    }
+    if (activeJobRequest) await advanceReviewDemo(activeJobRequest.customerId, "customer");
+    setDemoDrive(null);
+  };
+
   const exitTracking = () => {
     setSafetyOpen(false);
     setProfileOpen(false);
@@ -1558,7 +1577,9 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
               }
             : {})}
         />
-        {mode === "tracking" && trackingRemainingRoute ? (
+        <Images images={{ [WORKER_MARKER_IMAGE]: require("../assets/images/worker-marker.png") }} />
+        {mode === "tracking" && demoDrive ? <RouteDrive path={demoDrive} durationMs={DEMO_DRIVE_MS} lineColor={colors.accent} /> : null}
+        {mode === "tracking" && trackingRemainingRoute && !demoDrive ? (
           <GeoJSONSource id="tracking-route" data={trackingRemainingRoute}>
             <Layer
               id="tracking-route-line"
@@ -1577,7 +1598,7 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
           </ViewAnnotation>
         ) : null}
         {mode === "tracking" && trackingWorkerLocation ? (
-          <SmoothedPoint id="tracking-worker" target={trackingWorkerLocation} color={colors.accent} ring={colors.paper} />
+          demoDrive ? null : <SmoothedPoint id="tracking-worker" target={trackingWorkerLocation} />
         ) : null}
       </Map>
       </Reanimated.View>
@@ -2322,6 +2343,7 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
           actorId={activeJobRequest.customerId}
           role="customer"
           style={demoBarStyle}
+          onPress={trackingJob?.status === "assigned" && !trackingArrived && trackingRoute ? driveThenArrive : undefined}
         />
       ) : null}
 

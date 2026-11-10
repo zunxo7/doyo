@@ -114,9 +114,6 @@ export function BookedCard({ name, avatar, rating, minutesAway, price, saved, on
       <CardPattern />
       <Text style={[s.label, fontStyles.semiBold]}>{t("Booked")}</Text>
       <View style={s.head}>
-        <View style={s.icon}>
-          <UserCircle size={36} color={avatar === "female" ? colors.accent : colors.white} weight="fill" />
-        </View>
         <View style={s.titleBlock}>
           <Text style={[s.title, fontStyles.bold]} numberOfLines={1}>
             {name}
