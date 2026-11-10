@@ -1855,6 +1855,8 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
             maxHeight: MAX_PANEL_H,
           },
           panelAnimatedStyle,
+          // The chat is the home screen; this older panel must never show through it, even for a frame.
+          mode === "view" && step === "choose" && { opacity: 0 },
         ]}
       >
         {/* ---- Step 1: Choose a service ---- */}

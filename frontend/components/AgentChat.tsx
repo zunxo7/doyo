@@ -518,7 +518,8 @@ export default function AgentChat({
   const keyboardGap = Platform.OS === "android" ? insets.bottom : 0;
 
   return (
-    <Reanimated.View style={[s.wrap, fadeStyle]} pointerEvents={visible ? "auto" : "none"}>
+    // Appearing instantly means opaque in this very frame, not one animation tick later.
+    <Reanimated.View style={visible && instant ? s.wrap : [s.wrap, fadeStyle]} pointerEvents={visible ? "auto" : "none"}>
       <ScreenBackground variant="sheet" showPattern patternOpacity={0.022} hideOrbs>
       <View style={[s.body, { paddingTop: insets.top + 8, paddingBottom: keyboardHeight ? keyboardHeight + keyboardGap : insets.bottom }]}>
       <View style={s.header}>

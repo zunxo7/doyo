@@ -2,7 +2,7 @@ import { askJson, wait } from "./ai.ts";
 import { SERVICE_SCOPE } from "./scope.ts";
 import { runBookingAgent } from "./bookingAgent.ts";
 import { HttpError } from "./auth.ts";
-import { reverseGeocode, type LngLat } from "./geo.ts";
+import { distanceKm, reverseGeocode, route, type LngLat } from "./geo.ts";
 import * as jobs from "./jobs.ts";
 import type { ChatMessage, Job, Offer, Presence } from "./jobs.ts";
 
@@ -167,6 +167,49 @@ async function runBidding(job: Job): Promise<void> {
   );
 }
 
+// The demo worker's drive: this many evenly spaced points along the road, one every DRIVE_STEP_MS.
+const DRIVE_POINTS = 40;
+const DRIVE_STEP_MS = 250;
+const driving = new Set<string>();
+
+/** Points spaced evenly by distance along a route, so the worker moves at a steady pace on the road. */
+function alongRoute(path: LngLat[], count: number): LngLat[] {
+  if (path.length < 2) return path;
+  const lengths = path.slice(1).map((point, index) => distanceKm(path[index], point));
+  const total = lengths.reduce((sum, length) => sum + length, 0) || 1;
+  const points: LngLat[] = [];
+  for (let step = 1; step <= count; step++) {
+    let remaining = (total * step) / count;
+    let index = 0;
+    while (index < lengths.length - 1 && remaining > lengths[index]) remaining -= lengths[index++];
+    const share = lengths[index] ? Math.min(1, remaining / lengths[index]) : 1;
+    const [a, b] = [path[index], path[index + 1]];
+    points.push([a[0] + (b[0] - a[0]) * share, a[1] + (b[1] - a[1]) * share]);
+  }
+  return points;
+}
+
+/** The simulated worker drives the real road route to the customer, then arrives. */
+async function driveTo(jobId: string, persona: Persona): Promise<void> {
+  if (driving.has(jobId)) return;
+  driving.add(jobId);
+  try {
+    const job = jobs.getJob(jobId);
+    const start = job.workerLocation ?? nearby(job.coordinates);
+    const { coordinates } = await route(start, job.coordinates);
+    for (const point of alongRoute(coordinates, DRIVE_POINTS)) {
+      const current = jobs.getJob(jobId);
+      if (current.status !== "assigned" || current.workerPhase === "arrived") return;
+      jobs.setWorkerLocation(jobId, persona.id, point);
+      await wait(DRIVE_STEP_MS);
+    }
+    jobs.setWorkerLocation(jobId, persona.id, job.coordinates);
+    jobs.updatePhase(jobId, persona.id, "arrived");
+  } finally {
+    driving.delete(jobId);
+  }
+}
+
 /** Performs the simulated worker's next step, so the customer controls the pace of the demo. */
 export function advanceDemo(customerId: string): void {
   const job = jobs.liveJobOf(customerId);
@@ -180,8 +223,7 @@ export function advanceDemo(customerId: string): void {
   } else if (job.workerPhase === "arrived") {
     jobs.startJob(job.id, persona.id, job.startCode!);
   } else {
-    jobs.setWorkerLocation(job.id, persona.id, job.coordinates);
-    jobs.updatePhase(job.id, persona.id, "arrived");
+    void driveTo(job.id, persona).catch(console.warn);
   }
 }
 
