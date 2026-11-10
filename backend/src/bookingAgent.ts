@@ -12,6 +12,8 @@ const OFFER_WAIT_MS = 6000;
 // A person has to read the card before they can bid or answer.
 const HUMAN_BID_WAIT_MS = 15_000;
 const HUMAN_REPLY_WAIT_MS = 30_000;
+// A wait that turns up nothing new keeps waiting this many more times before the model is asked again.
+const QUIET_WAITS = 2;
 const RAISE_STEP = 1.1;
 const RULES_RAISE_AFTER_TURN = 3;
 
@@ -71,6 +73,12 @@ function market(jobId: string): string {
   return JSON.stringify({ asking_price: job.price, budget: job.agent?.budget, offers });
 }
 
+/** What the agent decides on: the asking price and each offer's price. Unchanged means nothing to decide. */
+function offersKey(jobId: string): string {
+  const offers = jobs.pendingOffers(jobId).map(offer => `${offer.id}:${offer.price}`).sort();
+  return `${jobs.getJob(jobId).price}|${offers.join(",")}`;
+}
+
 async function awaitReply(jobId: string, workerId: string): Promise<void> {
   const deadline = Date.now() + HUMAN_REPLY_WAIT_MS;
   while (Date.now() < deadline && isRunning(jobId)) {
@@ -86,8 +94,14 @@ async function perform(jobId: string, { name, input }: Call): Promise<string> {
   const offer = jobs.pendingOffers(jobId).find(item => item.id === offerId);
 
   switch (name) {
-    case "wait_for_offers":
-      break;
+    case "wait_for_offers": {
+      const before = offersKey(jobId);
+      for (let quiet = 0; quiet <= QUIET_WAITS && isRunning(jobId); quiet++) {
+        await wait(jobs.hasHumanWorkers(job) ? HUMAN_BID_WAIT_MS : OFFER_WAIT_MS);
+        if (offersKey(jobId) !== before) break;
+      }
+      return market(jobId);
+    }
     case "counter_offer":
       if (!offer) return `That offer is gone. ${market(jobId)}`;
       if (!price || price >= offer.price || price > budget) return "Counter below the offer and within budget.";
@@ -171,15 +185,19 @@ function ruleCall(jobId: string, turn: number, countered: Set<string>): Call {
 export async function runBookingAgent(jobId: string): Promise<void> {
   const job = jobs.getJob(jobId);
   const brief = { service: job.service, detail: job.detail, worker_preference: job.workerPreference };
-  const messages: Anthropic.MessageParam[] = [
-    { role: "user", content: `<job>${JSON.stringify(brief)}</job>\nCurrent market: ${market(jobId)}\nStart by waiting for offers.` },
-  ];
   const countered = new Set<string>();
   let useRules = false;
+  let modelCalls = 0;
 
   jobs.updateAgent(jobId, {}, "On it. Asking workers near you.");
+  // The first move is always to wait for bids, so it is made without asking the model.
+  const opening = await execute(jobId, { name: "wait_for_offers", input: {} });
+  const messages: Anthropic.MessageParam[] = [
+    { role: "user", content: `<job>${JSON.stringify(brief)}</job>\nYou waited for the first bids. Current market: ${opening}\nDecide your next step.` },
+  ];
   for (let turn = 0; turn < MAX_TURNS && isRunning(jobId); turn++) {
     const message = useRules ? null : await decide(messages);
+    if (message) modelCalls += 1;
     if (!message) {
       useRules = true;
       await execute(jobId, ruleCall(jobId, turn, countered));
@@ -195,6 +213,7 @@ export async function runBookingAgent(jobId: string): Promise<void> {
     messages.push({ role: "user", content: results });
   }
   if (isRunning(jobId)) jobs.updateAgent(jobId, { status: "stopped" }, "I couldn't close a deal in budget, so it's over to you.");
+  console.info(`booking agent ${jobId}: ${jobs.getJob(jobId).agent?.status} after ${modelCalls} model calls`);
 }
 
 const COUNT = { type: "integer" };
