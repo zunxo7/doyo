@@ -20,8 +20,6 @@ jobs:
           VM_HOST: ${{ secrets.VM_HOST }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s
-' "$VM_DEPLOY_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
-          printf '%s
-' "$VM_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf '%s\n' "$VM_DEPLOY_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$VM_KNOWN_HOSTS" > ~/.ssh/known_hosts
           tar -czf - -C website . | ssh -i ~/.ssh/deploy ubuntu@"$VM_HOST" website
