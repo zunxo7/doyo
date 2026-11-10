@@ -10,6 +10,7 @@ import * as ops from "./ops.ts";
 import { runTurn, type TurnRequest } from "./opsLlm.ts";
 import { registerOta } from "./ota.ts";
 import { planRequest } from "./bookingAgent.ts";
+import { SERVICE_SCOPE } from "./scope.ts";
 import * as paypal from "./paypal.ts";
 import { actor, cleanId, HttpError, issueToken } from "./auth.ts";
 import * as geo from "./geo.ts";
@@ -117,6 +118,7 @@ function presenceFrom(id: string, input: z.infer<typeof presenceBody>): jobs.Pre
 const DEMO_LOCATION = { coordinates: [73.0169, 33.675], address: "G-10 Markaz, Islamabad" };
 
 app.get("/health", async () => ({ ok: true }));
+app.get("/api/scope", async () => SERVICE_SCOPE);
 registerOta(app);
 app.get("/api/app-config", async () => ({
   workerAppUnlocked: true,

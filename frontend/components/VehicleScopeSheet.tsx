@@ -22,70 +22,23 @@ import { useFontFamilies } from "../hooks/useFontFamilies";
 import { useColors, useThemedStyles } from "../hooks/useColors";
 import type { Palette } from "../styles/colors";
 import { fontStyles } from "../styles/fonts";
+import { useServiceScope } from "../services/scope";
 
 const PAGE_GAP = 12;
 const EXTERIOR_INDEX = 1;
 const INTERIOR_INDEX = 2;
 
-const EXTERIOR_ITEMS = [
-  { area: "Roof and top", method: "Wash and wipe" },
-  { area: "Windows", method: "Exterior glass wipe" },
-  { area: "Left side", method: "Wash and wipe" },
-  { area: "Right side", method: "Wash and wipe" },
-  { area: "Bottom and undercarriage", method: "Low-dust rinse only" },
-  { area: "Wheels", method: "Wash and rinse" },
-];
-
-const INTERIOR_ITEMS = [
-  { area: "Dashboard and steering wheel", method: "Dust and wipe, no water" },
-  { area: "Front seats", method: "Dust and wipe" },
-  { area: "Back seats", method: "Dust and wipe" },
-  { area: "Floor and carpets", method: "Vacuum or sweep" },
-  { area: "Windows (inside)", method: "Interior glass wipe" },
-  { area: "Mirrors (inside)", method: "Interior mirror wipe" },
-];
-
-const NORMAL_HOME_ITEMS = [
-  { area: "Room floors", method: "Brooming and mopping" },
-];
-
-const DETAILED_HOME_ITEMS = [
-  { area: "Floors", method: "Brooming and mopping" },
-  { area: "Glass surfaces", method: "Glass cleaning" },
-  { area: "Windows", method: "Window cleaning" },
-  { area: "Tables, desks, and flat surfaces", method: "Dusting and wiping" },
-  { area: "Corners, edges, switches, and handles", method: "Dusting" },
-];
-
-// The worker only moves things; anything beyond that is listed so nobody
-// books shifting expecting packing, assembly or a clean.
-const FURNITURE_MOVING_ITEMS = [
-  { area: "Big items", method: "Beds, sofas, wardrobes, dining tables" },
-  { area: "Small items", method: "Chairs, side tables, TVs, boxes" },
-  { area: "Between rooms and floors", method: "Shifted where you want it" },
-];
-
-const FURNITURE_EXCLUDED_ITEMS = [
-  { area: "Packing and unpacking", method: "Not included", excluded: true },
-  { area: "Assembling or dismantling", method: "Not included", excluded: true },
-  { area: "Cleaning", method: "Book Home Services separately", excluded: true },
-];
-
-// A barber visit is hair and beard only, so skin care is named as out.
-const BARBER_SERVICE_ITEMS = [
-  { area: "Haircut", method: "Cut and styled the way you ask" },
-  { area: "Beard", method: "Trimmed and styled" },
-  { area: "Facials and skin care", method: "Not included", excluded: true },
-];
-
-// Unlike cleaning, the barber brings everything; the customer provides nothing.
-const BARBER_EQUIPMENT_ITEMS = [
-  { area: "Clippers and trimmer", method: "Brought by the barber" },
-  { area: "Scissors and combs", method: "Brought by the barber" },
-  { area: "Razor", method: "Brought by the barber" },
-  { area: "Shaving cape", method: "Brought by the barber" },
-  { area: "Sanitizing supplies", method: "Tools are sanitized before use" },
-];
+// Each page's icon, by the page label the server sends.
+const PAGE_ICONS: Record<string, React.ComponentType<any>> = {
+  Regular: Broom,
+  Deep: Sparkle,
+  Moving: Couch,
+  "Not included": Prohibit,
+  Services: Scissors,
+  "Barber brings": Toolbox,
+  Exterior: Car,
+  Interior: Seat,
+};
 
 type ScopeItem = { area: string; method: string; excluded?: boolean };
 
@@ -108,26 +61,12 @@ export default function VehicleScopeSheet({ visible, scopeType = "vehicle", clea
   const colors = useColors();
   const s = useThemedStyles(makeStyles);
   const isHome = scopeType === "home";
-  const pages: [ScopePage, ScopePage] =
-    isHome
-      ? [
-          { label: "Regular", Icon: Broom, items: NORMAL_HOME_ITEMS },
-          { label: "Deep", Icon: Sparkle, items: DETAILED_HOME_ITEMS },
-        ]
-      : scopeType === "furniture"
-        ? [
-            { label: "Moving", Icon: Couch, items: FURNITURE_MOVING_ITEMS },
-            { label: "Not included", Icon: Prohibit, items: FURNITURE_EXCLUDED_ITEMS },
-          ]
-        : scopeType === "barber"
-          ? [
-              { label: "Services", Icon: Scissors, items: BARBER_SERVICE_ITEMS },
-              { label: "Barber brings", Icon: Toolbox, items: BARBER_EQUIPMENT_ITEMS },
-            ]
-          : [
-      { label: "Exterior", Icon: Car, items: EXTERIOR_ITEMS },
-      { label: "Interior", Icon: Seat, items: INTERIOR_ITEMS },
-        ];
+  const scope = useServiceScope();
+  const page = (index: 0 | 1): ScopePage => {
+    const source = scope?.[scopeType]?.[index];
+    return { label: source?.label ?? "", Icon: PAGE_ICONS[source?.label ?? ""] ?? CheckCircle, items: source?.items ?? [] };
+  };
+  const pages: [ScopePage, ScopePage] = [page(0), page(1)];
   const initialPageIndex: 0 | 1 = isHome && cleaningType === "Deep" ? 1 : 0;
   const { height: SCREEN_H } = useWindowDimensions();
   const [mounted, setMounted] = useState(visible);
