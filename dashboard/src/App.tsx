@@ -354,7 +354,13 @@ const ai: AgAiHarnessSetup = setup => {
       const state = api.getState() as unknown as { pages: Page[]; selectedPageId: string };
       const page = state.pages.find(item => item.id === state.selectedPageId) ?? state.pages[0];
       const layout = page.widgetLayout ?? {};
-      const spot = freeSpot(layout, SPANS[args.width ?? ""] ?? SPANS[size.width], size.height);
+      // Nothing may clip: a widget is at least wide enough for its title on one line (about 8 px a
+      // character at 13 px bold) and, for a single number, for that number at 36 px.
+      const COLUMN_PX = 1240 / 24;
+      const titleColumns = Math.ceil((args.title.length * 8 + 48) / COLUMN_PX);
+      const numberColumns = type === "value" ? 8 : 0;
+      const asked = SPANS[args.width ?? ""] ?? SPANS[size.width];
+      const spot = freeSpot(layout, Math.min(24, Math.max(asked, titleColumns, numberColumns)), size.height);
       const id = `chart${Date.now()}`;
       // A single number reads like the dashboard's own KPIs: big, bold, sitting at the bottom of its card.
       const numberStyle = type === "value" ? { style: { color: "#ffffff", typography: { fontWeight: "bold", fontSize: 36 }, verticalAlign: "bottom" } } : {};
