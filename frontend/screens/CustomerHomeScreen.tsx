@@ -1851,8 +1851,6 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
             maxHeight: MAX_PANEL_H,
           },
           panelAnimatedStyle,
-          // The chat is the home screen; this older panel must never show through it, even for a frame.
-          mode === "view" && step === "choose" && { opacity: 0 },
         ]}
       >
         {/* ---- Step 1: Choose a service ---- */}
@@ -2659,6 +2657,9 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
         />
       ) : null}
 
+      {/* While the chat is the home screen, nothing behind it (the map, the older panel) can show
+          through, even for the frame it takes the chat to appear: this is the chat's own background. */}
+      {mode === "view" && step === "choose" && chatInstant ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#1d1d1d" }]} /> : null}
       <AgentChat
         visible={mode === "view" && step === "choose"}
         instant={chatInstant}
