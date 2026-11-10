@@ -25,7 +25,6 @@ export type RootStackParamList = {
   OTP: { email: string; challenge: string; expiresAt: number };
   Role: { uid?: string; email: string; name?: string | null; phone: string };
   CustomerName: { uid?: string; email: string; name?: string | null; phone: string };
-  LinkPayPal: { name: string };
   CustomerHome: {
     name: string;
     repeatJob?: {

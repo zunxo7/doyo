@@ -63,7 +63,7 @@ export default function CustomerNameScreen({ navigation, route }: Props) {
       await saveUser(customer);
       navigation.reset({
         index: 0,
-        routes: [{ name: "LinkPayPal", params: { name: trimmedName } }],
+        routes: [{ name: "CustomerHome", params: { name: trimmedName } }],
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : t("Something went wrong. Please try again.");

@@ -34,7 +34,6 @@ import BookingDetailsScreen from "./screens/BookingDetailsScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import SupportScreen from "./screens/SupportScreen";
 import ServicesInfoScreen from "./screens/ServicesInfoScreen";
-import LinkPayPalScreen from "./screens/LinkPayPalScreen";
 import WorkerTrackingScreen from "./screens/WorkerTrackingScreen";
 import WorkerLockedScreen from "./screens/WorkerLockedScreen";
 import WorkerPersonalInfoScreen from "./screens/WorkerPersonalInfoScreen";
@@ -155,7 +154,6 @@ function AppShell() {
           <Stack.Screen name="OTP" component={OTPScreen} />
           <Stack.Screen name="Role" component={RoleScreen} />
           <Stack.Screen name="CustomerName" component={CustomerNameScreen} />
-          <Stack.Screen name="LinkPayPal" component={LinkPayPalScreen} />
           <Stack.Screen name="CustomerHome" component={CustomerHomeScreen} />
           <Stack.Screen name="WorkerHome" component={WorkerHomeScreen} />
           <Stack.Screen name="Chat" component={ChatScreen} />
