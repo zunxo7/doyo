@@ -36,21 +36,21 @@ type Props = { navigation: StackNavigationProp<RootStackParamList, "Onboarding">
 const SLIDES = [
   {
     key: "1",
-    illustration: require("../assets/images/Illustration1.webp"),
+    illustration: require("../assets/images/OnboardingPlan.webp"),
     titleWhite: "Let Doyo ",
     titleAccent: "Do It",
-    body: "Say what you need in English, Urdu or Roman Urdu. Doyo plans the job.",
+    body: "Type what you need in English, Urdu or Roman Urdu. Doyo plans the job.",
   },
   {
     key: "2",
-    illustration: require("../assets/images/Illustration7.webp"),
+    illustration: require("../assets/images/OnboardingNegotiate.webp"),
     titleWhite: "Doyo ",
     titleAccent: "Negotiates",
     body: "Nearby workers send offers. Doyo bargains for you and never goes over your limit.",
   },
   {
     key: "3",
-    illustration: require("../assets/images/Illustration2.webp"),
+    illustration: require("../assets/images/OnboardingPayAfter.webp"),
     titleWhite: "Pay ",
     titleAccent: "After",
     body: "Link PayPal once. You pay the final price only when the work is done.",

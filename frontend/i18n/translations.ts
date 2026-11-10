@@ -60,8 +60,8 @@ export const translations: Record<Language, Record<string, string>> = {
     // ---- Onboarding ----
     "Let Doyo ": "Doyo کو ",
     "Do It": "کرنے دیں",
-    "Say what you need in English, Urdu or Roman Urdu. Doyo plans the job.":
-      "اپنی ضرورت انگریزی، اردو یا رومن اردو میں بتائیں۔ Doyo کام کا منصوبہ بناتا ہے۔",
+    "Type what you need in English, Urdu or Roman Urdu. Doyo plans the job.":
+      "اپنی ضرورت انگریزی، اردو یا رومن اردو میں لکھیں۔ Doyo کام کا منصوبہ بناتا ہے۔",
     Negotiates: "سودا طے کرتا ہے",
     "Nearby workers send offers. Doyo bargains for you and never goes over your limit.":
       "قریبی ورکرز آفر بھیجتے ہیں۔ Doyo آپ کے لیے بھاؤ تاؤ کرتا ہے اور آپ کی حد سے کبھی اوپر نہیں جاتا۔",

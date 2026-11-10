@@ -32,8 +32,9 @@ import { fontStyles } from "../styles/fonts";
 type Props = { navigation: StackNavigationProp<RootStackParamList, "Splash"> };
 
 const ILLUSTRATION_ASSETS = [
-  require("../assets/images/Illustration1.webp"),
-  require("../assets/images/Illustration2.webp"),
+  require("../assets/images/OnboardingPlan.webp"),
+  require("../assets/images/OnboardingNegotiate.webp"),
+  require("../assets/images/OnboardingPayAfter.webp"),
   require("../assets/images/Illustration3.webp"),
   require("../assets/images/Illustration4.webp"),
 ];

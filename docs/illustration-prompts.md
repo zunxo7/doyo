@@ -2,7 +2,7 @@
 
 ## The existing style
 
-Every illustration in `frontend/assets/images/Illustration*.webp` shares one language:
+Every illustration in `frontend/assets/images/` (and unused source art in `design/art/`) shares one language:
 
 - Flat 2D vector, no gradients, no shading, no texture.
 - Thick, even, black outlines with rounded joins and caps. Interior detail lines are slightly thinner.

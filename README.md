@@ -110,11 +110,15 @@ chat. Guardrails:
 ## Architecture
 
 ```
-frontend/   Expo SDK 57 · React Native 0.86 · MapLibre · expo-updates
-backend/    Node 24 · TypeScript · Fastify · WebSockets · node:sqlite · zod
-dashboard/  Operations dashboard · React · Vite · AG Studio (builds into website/dashboard)
+frontend/   The app · Expo SDK 57 · React Native 0.86 · MapLibre · expo-updates
+backend/    API, booking agent, PayPal, update server · Node 24 · Fastify · WebSockets · node:sqlite
+dashboard/  Operations dashboard · React · Vite · AG Studio (built into website/dashboard by CI)
 website/    Marketing site · GSAP
+design/art/ Source art not shipped in the app (originals for the worker photos and icons)
+docs/       Devpost write-up, illustration prompts
+scripts/    version-assets.py (website cache-busting), make-avatars.py (worker photos)
 .github/    Workflows: deploy backend, publish app update, publish website, build APK
+local/      Gitignored: local builds, logs and credentials
 ```
 
 - **Realtime:** one WebSocket per client; job rooms and the worker market are topics. No polling.

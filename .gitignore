@@ -1,5 +1,7 @@
 *.apk
 apk-build.log
+# Local-only files: builds, logs, credentials, handoff notes.
+/local/
 backend/.env.secrets
 paypal-sandbox-accounts.txt
 HANDOFF.md
