@@ -1,0 +1,108 @@
+{
+  "expo": {
+    "name": "Doyo",
+    "slug": "doyo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.doyo.demo",
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSCameraUsageDescription": "Doyo uses your camera to photograph CNIC documents for cleaner verification.",
+        "NSPhotoLibraryUsageDescription": "Doyo lets you choose profile, support, and verification images from your photo library.",
+        "NSLocationWhenInUseUsageDescription": "Doyo uses your location to set your service address and show live job tracking."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#00BAF0"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.doyo.demo",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-asset",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#00baf0"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Doyo lets you choose profile, support, and verification images from your photo library.",
+          "cameraPermission": "Doyo uses your camera to photograph CNIC documents for cleaner verification.",
+          "microphonePermission": false
+        }
+      ],
+      "@maplibre/maplibre-react-native",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Doyo uses your location to show nearby workers and set your service address.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
+          "isIosBackgroundLocationEnabled": true,
+          "locationAlwaysAndWhenInUsePermission": "Doyo uses your location while you're online as a cleaner, including when the app is in the background, so nearby customers can find you and see you on the way to their address.",
+          "locationAlwaysPermission": false
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "buildReactNativeFromSource": true
+          },
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "# MapLibre native bindings (JNI + reflection)\n-keep class org.maplibre.** { *; }\n-dontwarn org.maplibre.**\n# Keep JS engine exception names readable in crash reports\n-keepattributes SourceFile,LineNumberTable\n-renamesourcefileattribute SourceFile\n\n# --- R8 optimization is ON (proguard-android-optimize.txt) ---\n# Optimization passes inline methods and merge classes, which breaks anything\n# the runtime resolves by NAME rather than by reference: JNI natives, the\n# @DoNotStrip members React Native and Fresco call from C++, and the Expo\n# module registry. Shrinking alone never touched these; optimization does.\n-keepclasseswithmembernames,includedescriptorclasses class * { native <methods>; }\n-keep @com.facebook.proguard.annotations.DoNotStrip class * { *; }\n-keepclassmembers class * { @com.facebook.proguard.annotations.DoNotStrip *; }\n-keepclassmembers class * { @com.facebook.common.internal.DoNotStrip *; }\n-keep class com.facebook.jni.** { *; }\n-keep class com.facebook.hermes.** { *; }\n# Expo looks modules and their exported functions up by name at runtime.\n-keep class * extends expo.modules.kotlin.modules.Module { *; }\n-keep class expo.modules.** { *; }\n-dontwarn expo.modules.**",
+            "enableMinifyInReleaseBuilds": true
+          }
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#1f1f1f",
+          "enableFullScreenImage_legacy": true
+        }
+      ],
+      "expo-status-bar"
+    ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://api.letdoyo.com/ota/manifest",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    }
+  }
+}

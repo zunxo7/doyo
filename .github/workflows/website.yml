@@ -1,0 +1,27 @@
+name: Publish website
+
+on:
+  push:
+    branches: [main, "claude/**"]
+    paths: [website/**]
+  workflow_dispatch:
+
+concurrency: website
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish to the VM
+        env:
+          VM_DEPLOY_KEY: ${{ secrets.VM_DEPLOY_KEY }}
+          VM_KNOWN_HOSTS: ${{ secrets.VM_KNOWN_HOSTS }}
+          VM_HOST: ${{ secrets.VM_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s
+' "$VM_DEPLOY_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s
+' "$VM_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          tar -czf - -C website . | ssh -i ~/.ssh/deploy ubuntu@"$VM_HOST" website

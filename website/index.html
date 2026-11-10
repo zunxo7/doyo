@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doyo: let Doyo do it for you</title>
+<meta name="description" content="Doyo is an AI agent for home services in Pakistan. It negotiates with nearby workers inside your limit, books the best one and pays through PayPal after the job. Built for the PayPal AI Hackathon 2026.">
+<meta name="theme-color" content="#1d1d1d">
+<link rel="icon" href="assets/favicon.png">
+<script>
+  (function () {
+    var root = document.documentElement;
+    root.classList.add("js");
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || /[?&]static=1/.test(location.search)) root.classList.add("static");
+  })();
+</script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-doyo" viewBox="0 0 120 120">
+    <rect width="120" height="120" rx="27" fill="#00BAF0"/>
+    <g transform="translate(60 60) scale(0.72) translate(-34 -50)">
+      <g fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round">
+        <circle cx="34" cy="68" r="26"/>
+        <path d="M60 6V94"/>
+      </g>
+      <path fill="#FFFFFF" d="M27 0Q29.5 11.5 41 14Q29.5 16.5 27 28Q24.5 16.5 13 14Q24.5 11.5 27 0Z"/>
+    </g>
+  </symbol>
+  <symbol id="i-wordmark" viewBox="0 0 302 144">
+    <g transform="translate(4 6)">
+      <g fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="34" cy="68" r="26"/>
+        <path d="M60 6V94"/>
+        <circle cx="118" cy="68" r="26"/>
+        <path d="M164 42L190 94"/>
+        <path d="M216 42L173 128"/>
+        <circle cx="262" cy="68" r="26"/>
+      </g>
+      <circle cx="262" cy="68" r="7" fill="#00BAF0"/>
+      <path fill="#00BAF0" d="M27 0Q29.5 11.5 41 14Q29.5 16.5 27 28Q24.5 16.5 13 14Q24.5 11.5 27 0Z"/>
+    </g>
+  </symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M12 2a7.5 7.5 0 0 0-7.5 7.5c0 5.3 6.6 11.6 7 11.9a.75.75 0 0 0 1 0c.4-.3 7-6.6 7-11.9A7.5 7.5 0 0 0 12 2Zm0 10.2a2.7 2.7 0 1 1 0-5.4 2.7 2.7 0 0 1 0 5.4Z"/></symbol>
+  <symbol id="i-caret" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><g fill="currentColor"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.8"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.8"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.8"/><rect x="13" y="13" width="7.5" height="7.5" rx="1.8"/></g></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path fill="currentColor" d="M3.4 3.2a1 1 0 0 1 1.3-.4l16.5 8.3a1 1 0 0 1 0 1.8L4.7 21.2a1 1 0 0 1-1.4-1.2L5.9 13H12a1 1 0 0 0 0-2H5.9L3.3 4a1 1 0 0 1 .1-.8Z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 32 32"><path fill="currentColor" fill-rule="evenodd" d="M16 2a14 14 0 1 0 0 28 14 14 0 0 0 0-28Zm0 6.5a5 5 0 1 1 0 10 5 5 0 0 1 0-10ZM7.6 24.2a10.4 10.4 0 0 1 16.8 0 11.4 11.4 0 0 1-16.8 0Z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.500M5 19.500h14" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 5v14m0 0l-6-6m6 6l6-6" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 28 28"><path fill="currentColor" d="M14 0Q16.500 11.500 28 14Q16.500 16.500 14 28Q11.500 16.500 0 14Q11.500 11.500 14 0Z"/></symbol>
+</svg>
+
+<div class="bg-pattern" aria-hidden="true"></div>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="Doyo home">
+      <svg class="wordmark" role="img" aria-label="Doyo"><use href="#i-wordmark"/></svg>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#try">Try it</a>
+      <a href="https://github.com/zunxo7/doyo">Code</a>
+    </nav>
+    <a class="btn btn-primary btn-small" href="https://api.letdoyo.com/ota/app.apk">Get the app</a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- Hero -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <h1 aria-label="Let Doyo do it for you.">
+        <span class="line"><span>Let Doyo</span></span>
+        <span class="line"><span>do it</span></span>
+        <span class="line"><span class="accent">for you.</span></span>
+      </h1>
+      <p class="lede fade-up">An AI agent that negotiates, books and pays for home services in Pakistan.</p>
+      <div class="cta-row fade-up">
+        <a class="btn btn-primary" href="https://api.letdoyo.com/ota/app.apk">
+          <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Get the Android app
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/zunxo7/doyo">View the code</a>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="shard shard-a"></div>
+      <div class="shard shard-b"></div>
+      <div class="tilt">
+        <div class="phone phone-demo" id="demo" data-stage="start">
+            <div class="screen"><i class="cam"></i>
+              <div class="ph-header" aria-hidden="true">
+                <svg class="ico-24"><use href="#i-list"/></svg>
+                <div class="ph-pill"><svg class="ico-16 accent"><use href="#i-pin"/></svg><span>G-10 Markaz, Islamabad</span><svg class="ico-14 caret"><use href="#i-caret"/></svg></div>
+              </div>
+  
+              <div class="thread" id="thread" role="log" aria-label="Doyo chat">
+                <div class="welcome" aria-hidden="true">
+                  <svg class="welcome-icon"><use href="#i-doyo"/></svg>
+                  <p>Let Doyo do it for you</p>
+                </div>
+  
+                <div class="item me" data-step="1"><span class="sr">You: </span>Deep clean 3 rooms, female worker, under 700</div>
+  
+                <div class="item card" id="plan" data-step="2" data-typing>
+                  <div class="card-title">Home cleaning</div>
+                  <div class="card-sub">3 rooms · Deep clean</div>
+                  <div class="card-divider"></div>
+                  <div class="card-line"><span>Where</span><b>G-10 Markaz, Islamabad</b></div>
+                  <div class="card-line"><span>Worker</span><b>Female</b></div>
+                  <div class="card-line"><span>Starts at</span><b>PKR 507</b></div>
+                  <div class="card-line"><span>Never over</span><b>PKR 700</b></div>
+                  <div class="card-line"><span>Pay with</span><b class="link">PayPal</b></div>
+                  <div class="card-actions" aria-hidden="true"><span class="btn-sec">Change</span><span class="btn-pri">Book it</span></div>
+                </div>
+  
+                <div class="item row agent" id="onit" data-step="3" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">On it. Asking workers near you.</div></div></div>
+                <div class="item row" data-step="3" data-best="540"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="row-body"><div class="speaker">Ayesha K.</div><div class="bubble">Deep cleaning 3 rooms is my specialty. I can do it for PKR 540.</div></div></div>
+                <div class="item row" data-step="3" data-best="500"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="row-body"><div class="speaker">Sana R.</div><div class="bubble">I can do this deep clean for 3 rooms at PKR 500. Happy to get started.</div></div></div>
+                <div class="item row agent" data-step="3" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">Sana, could you do PKR 450?</div></div></div>
+                              <div class="item row" data-step="3"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="row-body"><div class="speaker">Sana R.</div><div class="bubble">500 is my best for a deep clean.</div></div></div>
+                              <div class="item row agent" data-step="4" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">Booking Sana at PKR 500, thank you.</div></div></div>
+  
+                <div class="item card booked" id="booked" data-step="4">
+                  <div class="booked-label">Booked</div>
+                  <div class="offer-top"><span class="card-title">Sana R.</span><span class="card-title">PKR 500</span></div>
+                  <div class="offer-meta"><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg><span>4.8 · 6 min · Saved PKR 7</span></div>
+                  <div class="btn-pri wide" aria-hidden="true">Track on map</div>
+                </div>
+  
+                <div class="item row agent" id="paid" data-step="5" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">PKR 500 paid with PayPal. Doyo saved you PKR 7.</div></div></div>
+  
+                <div class="row agent typing-row" id="typing" aria-hidden="true"><svg class="avatar"><use href="#i-doyo"/></svg><div class="typing"><i></i><i></i><i></i></div></div>
+              </div>
+  
+              <div class="status" aria-hidden="true"><span class="status-text" id="statusText">Negotiating</span><span class="status-action">Take over</span></div>
+  
+              <div class="chips chips-start" aria-hidden="true">
+                <span class="chip chip-icon"><svg class="ico-15 accent"><use href="#i-grid"/></svg>All services</span><span class="chip">Deep clean 3 rooms</span><span class="chip">Wash my car</span>
+              </div>
+              <div class="chips chips-plan" aria-hidden="true">
+                <span class="chip">Any worker</span><span class="chip">Make my limit lower</span>
+              </div>
+  
+              <div class="composer" aria-hidden="true">
+                <span class="tool"><svg class="ico-20"><use href="#i-grid"/></svg></span>
+                <span class="input"><span class="ph-start">Tell Doyo what you need</span><span class="ph-plan">Change anything…</span><span class="ph-live">Change or cancel…</span></span>
+                <span class="send disabled"><svg class="ico-20"><use href="#i-send"/></svg></span>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="chip-float chip-limit"><span>Never over</span><b>PKR 700</b></div>
+      <div class="chip-float chip-booked"><svg class="ico-16"><use href="#i-spark"/></svg>Booked at PKR 500</div>
+    </div>
+  </div>
+  <a class="scroll-hint" href="#services" aria-label="Scroll down"><svg class="ico-20" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+</section>
+
+<!-- Services marquee -->
+<section class="marquee" id="services" aria-label="Services: home cleaning, vehicle wash, furniture shifting, barber at home. In English, Urdu or Roman Urdu.">
+  <div class="mq-row" data-dir="-1" aria-hidden="true">
+    <div class="mq-track">
+      <span><img src="assets/HomeServicesIcon.webp" alt="">Home cleaning</span>
+      <span><img src="assets/VehicleServicesIcon.webp" alt="">Vehicle wash</span>
+      <span><img src="assets/FurnitureServicesIcon.webp" alt="">Furniture shifting</span>
+      <span><img src="assets/BarberServicesIcon.webp" alt="">Barber at home</span>
+      <span><img src="assets/HomeServicesIcon.webp" alt="">Home cleaning</span>
+      <span><img src="assets/VehicleServicesIcon.webp" alt="">Vehicle wash</span>
+      <span><img src="assets/FurnitureServicesIcon.webp" alt="">Furniture shifting</span>
+      <span><img src="assets/BarberServicesIcon.webp" alt="">Barber at home</span>
+    </div>
+  </div>
+  <div class="mq-row mq-outline" data-dir="1" aria-hidden="true">
+    <div class="mq-track">
+      <span>Roman Urdu</span><i></i><span>English</span><i></i><span>Urdu</span><i></i>
+      <span>Roman Urdu</span><i></i><span>English</span><i></i><span>Urdu</span><i></i>
+      <span>Roman Urdu</span><i></i><span>English</span><i></i><span>Urdu</span><i></i>
+      <span>Roman Urdu</span><i></i><span>English</span><i></i><span>Urdu</span><i></i>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section section-cta" id="try">
+  <div class="wrap">
+    <div class="cta-card">
+      <div class="cta-copy">
+        <h2 aria-label="Try it."><span class="line"><span>Try it.</span></span></h2>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://api.letdoyo.com/ota/app.apk">
+            <svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Get the Android app
+          </a>
+          <a class="btn btn-secondary" href="https://github.com/zunxo7/doyo">View the code</a>
+        </div>
+        <dl class="login" aria-label="Demo login">
+          <div><dt>Email</dt><dd>judge@letdoyo.com</dd></div>
+          <div><dt>Code</dt><dd>1234</dd></div>
+        </dl>
+      </div>
+      <img class="cta-art" src="assets/Illustration4.webp" alt="A worker holding a spray bottle next to a customer holding a phone" width="1343" height="861" loading="lazy">
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div>
+      <svg class="wordmark" role="img" aria-label="Doyo"><use href="#i-wordmark"/></svg>
+      <p>Built for the PayPal AI Hackathon 2026 with Claude and PayPal. A demo, not a launched service.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="https://api.letdoyo.com/ota/app.apk">Android app</a>
+      <a href="https://github.com/zunxo7/doyo">Code on GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/vendor/gsap.min.js"></script>
+<script src="assets/vendor/ScrollTrigger.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

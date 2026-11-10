@@ -1,0 +1,42 @@
+name: Publish app update
+
+on:
+  push:
+    branches: [main, "claude/**"]
+    paths: [frontend/**]
+  workflow_dispatch:
+
+concurrency: app-update
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci && npx tsc --noEmit
+        working-directory: frontend
+      - name: Export the JS bundle
+        working-directory: frontend
+        env:
+          NODE_ENV: production
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
+        run: |
+          npx expo export --platform android --output-dir dist
+          npx expo config --type public --json > dist/expoConfig.json
+      - name: Publish to the VM
+        working-directory: frontend
+        env:
+          VM_DEPLOY_KEY: ${{ secrets.VM_DEPLOY_KEY }}
+          VM_KNOWN_HOSTS: ${{ secrets.VM_KNOWN_HOSTS }}
+          VM_HOST: ${{ secrets.VM_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VM_DEPLOY_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$VM_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          runtime=$(node -p "require('./app.json').expo.version")
+          tar -czf - -C dist . | ssh -i ~/.ssh/deploy ubuntu@"$VM_HOST" "ota $runtime"

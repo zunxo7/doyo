@@ -1,0 +1,8 @@
+*.apk
+apk-build.log
+backend/.env.secrets
+paypal-sandbox-accounts.txt
+HANDOFF.md
+doyo-logo.zip
+node_modules/
+dashboard/
