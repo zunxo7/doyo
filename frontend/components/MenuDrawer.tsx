@@ -37,6 +37,7 @@ import LegalOverlay from "./LegalOverlay";
 import { fontStyles } from "../styles/fonts";
 
 const DEVPOST_URL = "https://paypalaihackathon.devpost.com/";
+const INSTAGRAM_URL = "https://www.instagram.com/letdoyo/";
 
 interface Props {
   visible: boolean;
@@ -214,7 +215,12 @@ export default function MenuDrawer({
           </TouchableOpacity>
 
           <View style={s.socialRow}>
-            <TouchableOpacity style={s.socialButton} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={s.socialButton}
+              activeOpacity={0.8}
+              accessibilityLabel="Instagram"
+              onPress={() => void Linking.openURL(INSTAGRAM_URL).catch(() => undefined)}
+            >
               <InstagramLogo size={32} color={colors.white} weight="bold" />
             </TouchableOpacity>
             <TouchableOpacity
