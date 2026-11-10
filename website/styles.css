@@ -299,8 +299,10 @@ svg[class^="ico"], svg.avatar { flex: none; }
   .ops-board { padding: 12px; gap: 10px; border-radius: 24px; }
   .ops-kpis, .ops-row { gap: 8px; }
   .ops-kpis div, .ops-card { padding: 14px 12px; border-radius: 14px; }
-  .ops-kpis span, .ops-title { font-size: 10px; }
-  .ops-kpis b { font-size: 17px; }
+  .ops-kpis { grid-template-columns: 1fr 1fr; }
+  .ops-kpis div:first-child { grid-column: span 2; }
+  .ops-kpis span, .ops-title { font-size: 11px; white-space: normal; }
+  .ops-kpis b { font-size: 20px; margin-top: 8px; }
   .ops-row { grid-template-columns: 1fr; }
   .section-head { margin-bottom: 48px; }
   .cta-card { grid-template-columns: 1fr; gap: 0; padding: 40px 24px 0; border-radius: 28px; }

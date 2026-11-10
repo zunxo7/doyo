@@ -77,6 +77,7 @@ const LAYOUT = {
   columns: 24,
   rowHeight: 30,
   pagePadding: 4,
+  minWidth: 320,
   maxWidth: 1240,
   backgroundColor: "#1d1d1d",
   widgetPadding: 9,
@@ -84,6 +85,39 @@ const LAYOUT = {
   widgetBorderEnabled: false,
   widgetBorderRadius: 22,
 };
+
+type Candidate = { layout: Spot };
+/**
+ * On a phone the dashboard is one column, read top to bottom in the order it was authored. Short
+ * number tiles pair up two to a row; everything else takes the full width at its own height.
+ */
+const PHONE_LAYOUT = [
+  {
+    maxWidth: 760,
+    layout: (items: Candidate[], { columns }: { columns: number }) => {
+      const placed: Spot[] = new Array(items.length);
+      const order = items.map((item, index) => ({ spot: item.layout, index })).sort((a, b) => a.spot.yTrack - b.spot.yTrack || a.spot.xTrack - b.spot.xTrack);
+      let y = 0;
+      let x = 0;
+      let rowHeight = 0;
+      const newRow = () => {
+        y += rowHeight;
+        x = 0;
+        rowHeight = 0;
+      };
+      for (const { spot, index } of order) {
+        const tile = spot.ySpan <= 5;
+        const span = tile ? Math.floor(columns / 2) : columns;
+        if (x > 0 && (!tile || x + span > columns)) newRow();
+        placed[index] = { xTrack: x, yTrack: y, xSpan: span, ySpan: spot.ySpan };
+        x += span;
+        rowHeight = Math.max(rowHeight, spot.ySpan);
+        if (x >= columns) newRow();
+      }
+      return placed;
+    },
+  },
+];
 
 const ICON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M12 2q2 8 10 10-8 2-10 10-2-8-10-10 8-2 10-10z"/></svg>';
 
@@ -469,7 +503,7 @@ export default function App() {
         <button className={asking ? "btn" : "btn btn-ask"} type="button" aria-pressed={asking} onClick={() => setAsking(value => !value)}>
           Ask Doyo
         </button>
-        <button className={editing ? "ghost active" : "ghost"} type="button" aria-pressed={editing} onClick={() => setEditing(value => !value)}>
+        <button className={editing ? "ghost customise active" : "ghost customise"} type="button" aria-pressed={editing} onClick={() => setEditing(value => !value)}>
           Customise
         </button>
         <button
@@ -496,6 +530,7 @@ export default function App() {
               localeText={LOCALE as never}
               onStateUpdated={event => event.durable && saveCharts(event.state)}
               layout={LAYOUT}
+              responsiveLayoutBreakpoints={PHONE_LAYOUT as never}
               widgets={widgets as never}
               ai={ai}
               style={{ height: "100%", width: "100%" }}

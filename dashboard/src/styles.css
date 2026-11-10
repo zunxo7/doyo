@@ -172,3 +172,24 @@ body::before { content: ""; position: fixed; inset: 0; pointer-events: none; bac
 .flow-step { transition: transform 0.25s ease; }
 .flow-step:hover { transform: translateY(-2px); }
 @media (prefers-reduced-motion: reduce) { .dw *, .dw { animation: none !important; } }
+
+/* ---- Phone ---- */
+@media (max-width: 760px) {
+  .top { padding: 12px 12px 8px; gap: 8px; }
+  .brand .wordmark { width: 58px; height: 28px; }
+  .brand span { font-size: 15px; }
+  .tabs { order: 3; width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: none; height: 34px; padding: 0 14px; font-size: 13px; }
+  .live, .customise { display: none; }
+  .top .btn, .ghost { height: 34px; padding: 0 12px; font-size: 12.5px; }
+  .studio { padding: 0 2px 8px; }
+  .ag-studio-layout-widget-container { padding: 16px !important; }
+  .flow-step { padding: 10px 10px; border-radius: 12px; }
+  .flow-step b { font-size: 16px; }
+  .flow-step span, .flow-step small { font-size: 10px; }
+  .dw-flow { gap: 8px; }
+  .flow-step + .flow-step::before { left: -8px; width: 8px; }
+  .ag-studio-value-widget-content { font-size: 26px !important; }
+  .ag-studio-layout-widget-title { white-space: normal !important; }
+}
