@@ -66,7 +66,7 @@ export const makeAgentChatStyles = (c: Palette) =>
     },
     welcomeTagline: {
       color: c.white,
-      fontSize: 13,
+      fontSize: 18,
       textAlign: "center",
       marginTop: 10,
     },

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useSyncExternalStore } from "react";
+import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Booking } from "./api";
 import { getOverview, serviceName, subscribe } from "./data";
 
@@ -27,6 +27,16 @@ function CountUp({ to }: { to: number }) {
 export function LiveNegotiation() {
   const { jobs } = useOverview();
   const job = jobs.find((item: Booking) => item.log.length > 0 && !item.simulatedCustomer);
+  const thread = useRef<HTMLDivElement>(null);
+  // Lines already on screen when it first drew; only those stagger in, later ones arrive at once.
+  const firstCount = useRef<number | null>(null);
+  const lines = job?.log.length ?? 0;
+  if (job && firstCount.current === null) firstCount.current = lines;
+  // Each new line scrolls into view, so a live negotiation is seen as it happens.
+  useEffect(() => {
+    const el = thread.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: firstCount.current === lines ? "auto" : "smooth" });
+  }, [lines, job?.id]);
   if (!job) return <div className="dw dw-empty">No negotiation yet. Book something in the app.</div>;
   return (
     <div className="dw">
@@ -45,9 +55,13 @@ export function LiveNegotiation() {
           Never over <b>{pkr(job.limit)}</b>
         </span>
       </div>
-      <div className="dw-thread">
+      <div className="dw-thread" ref={thread}>
         {job.log.map((line, index) => (
-          <div key={`${line.at}${line.text}`} className={line.from === "worker" ? "msg" : "msg doyo"} style={{ "--i": index } as React.CSSProperties}>
+          <div
+            key={`${line.at}${line.text}`}
+            className={line.from === "worker" ? "msg" : "msg doyo"}
+            style={{ "--i": index < (firstCount.current ?? 0) ? Math.min(index, 8) : 0 } as React.CSSProperties}
+          >
             <small>{line.from === "worker" ? line.name : "Doyo"}</small>
             {line.text}
           </div>
