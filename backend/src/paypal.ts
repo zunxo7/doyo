@@ -128,7 +128,13 @@ export async function confirm(id: string, userId: string) {
   return store.put("payments", payment);
 }
 
-export const isLinked = (userId: string) => Boolean(store.get<Link>("paypalLinks", userId)?.tokenId);
+// The demo's shared sandbox buyer, saved under this id. Anyone without their own PayPal books with it,
+// so nobody has to sign in to PayPal to try Doyo; someone who links their own still uses theirs.
+const DEMO_LINK = "demo";
+const savedToken = (userId: string) =>
+  store.get<Link>("paypalLinks", userId)?.tokenId ?? store.get<Link>("paypalLinks", DEMO_LINK)?.tokenId ?? null;
+
+export const isLinked = (userId: string) => Boolean(savedToken(userId));
 
 /** Saves the customer's PayPal once, charging nothing, so later bookings need no PayPal screen. */
 export async function startLink(userId: string, publicBase: string) {
@@ -254,7 +260,7 @@ async function chargeSaved(job: jobs.Job): Promise<void> {
   const amount = job.acceptedPrice ?? job.price;
   let payment: Payment | null = null;
   try {
-    const tokenId = store.get<Link>("paypalLinks", job.customerId)?.tokenId;
+    const tokenId = savedToken(job.customerId);
     if (!tokenId) throw new Error("no saved PayPal account");
     const { result } = await orders.createOrder({
       paypalRequestId: job.id,

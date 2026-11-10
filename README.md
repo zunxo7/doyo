@@ -18,7 +18,7 @@ the money through PayPal once the job is done.
 | Website | `https://letdoyo.com` |
 | Android app | `https://api.letdoyo.com/ota/app.apk?v=37mb` |
 | Sign in | Continue with Email → `judge@letdoyo.com` → code `1234` |
-| PayPal | Any PayPal **sandbox** personal account. Judges: one is in the Devpost testing notes. |
+| PayPal | Nothing to set up: every account books with a shared PayPal **sandbox** personal account, so no real money moves. |
 | API | `https://api.letdoyo.com` (`/health`) |
 | Operations dashboard | `https://letdoyo.com/dashboard/`, same sign-in |
 
