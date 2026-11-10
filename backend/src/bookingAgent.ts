@@ -15,6 +15,17 @@ const HUMAN_REPLY_WAIT_MS = 30_000;
 // A wait that turns up nothing new keeps waiting this many more times before the model is asked again.
 const QUIET_WAITS = 2;
 const RAISE_STEP = 1.1;
+// The most above the cheapest open offer Doyo may book, for a better-rated or closer worker.
+export const PRICE_TOLERANCE = 0.05;
+
+/**
+ * The price rule, checked in code before a booking: a worker more than PRICE_TOLERANCE above the
+ * cheapest open offer may not be booked. Returns the cheaper offer that rules it out, if any.
+ */
+export function cheaperOffer<T extends { id: string; price: number }>(chosen: T, open: T[]): T | null {
+  const cheapest = open.reduce<T | null>((best, offer) => (!best || offer.price < best.price ? offer : best), null);
+  return cheapest && cheapest.id !== chosen.id && chosen.price > cheapest.price * (1 + PRICE_TOLERANCE) ? cheapest : null;
+}
 const RULES_RAISE_AFTER_TURN = 3;
 
 const SYSTEM = [
@@ -120,6 +131,13 @@ async function perform(jobId: string, { name, input }: Call): Promise<string> {
     case "accept_offer":
       if (!offer) return `That offer is gone. ${market(jobId)}`;
       if (offer.price > budget) return "That offer is over budget.";
+      {
+        const cheaper = cheaperOffer(offer, jobs.pendingOffers(jobId));
+        if (cheaper) {
+          console.info(`booking agent ${jobId}: blocked ${offer.name} at ${offer.price}; ${cheaper.name} offers ${cheaper.price}`);
+          return `Not booked: ${cheaper.name} offers PKR ${cheaper.price}, and ${offer.name} at PKR ${offer.price} is more than ${PRICE_TOLERANCE * 100}% above that. Book the cheaper offer, or counter. ${market(jobId)}`;
+        }
+      }
       jobs.acceptOffer(jobId, offer.id, job.customerId);
       jobs.updateAgent(jobId, { status: "booked", offerId: offer.id }, note);
       return "Booked.";
