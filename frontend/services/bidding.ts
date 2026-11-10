@@ -303,7 +303,8 @@ async function orDefault<T>(request: Promise<T>, fallback: T): Promise<T> {
 }
 
 export function workerPhotoUrl(workerId: string): string {
-  return `${API_BASE_URL}/api/worker-photo/${encoded(workerId)}`;
+  // The version moves when the bundled worker photos change, so caches drop the old ones.
+  return `${API_BASE_URL}/api/worker-photo/${encoded(workerId)}?v=2`;
 }
 
 export function getJobStatusShareUrl(codeOrJobId: string): string {
