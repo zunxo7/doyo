@@ -577,10 +577,9 @@ export default function AgentChat({
             );
           }
           if (item.kind === "worker") {
-            const repeat = items.slice(0, items.indexOf(item)).some(earlier => earlier.kind === "worker" && earlier.name === item.name);
             return (
               <View key={item.id}>
-                <OfferBubble line={item} repeat={repeat} />
+                <OfferBubble line={item} />
               </View>
             );
           }
@@ -633,13 +632,11 @@ export default function AgentChat({
           // Counter and Accept sit on a worker's current offer while the customer is choosing.
           const live = choosing && line.offerId ? offers.find(offer => offer.id === line.offerId) : undefined;
           const superseded = Boolean(line.offerId) && log.slice(index + 1).some(later => later.offerId && later.name === line.name);
-          const repeat = log.slice(0, index).some(earlier => earlier.from === "worker" && earlier.name === line.name);
           return (
             <Reanimated.View key={key} entering={FadeInDown.duration(220)} layout={LinearTransition.duration(220)}>
               <OfferBubble
                 line={line}
                 superseded={superseded}
-                repeat={repeat}
                 onCounter={live ? () => setCountering(live) : undefined}
                 onAccept={live ? () => void accept(live) : undefined}
               />
