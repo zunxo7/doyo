@@ -11,6 +11,7 @@ import { runTurn, type TurnRequest } from "./opsLlm.ts";
 import { registerOta } from "./ota.ts";
 import { planRequest } from "./bookingAgent.ts";
 import { SERVICE_SCOPE } from "./scope.ts";
+import { quickReply } from "./router.ts";
 import * as paypal from "./paypal.ts";
 import { actor, cleanId, HttpError, issueToken } from "./auth.ts";
 import * as geo from "./geo.ts";
@@ -284,7 +285,7 @@ app.post("/api/agent/plan", async req => {
       usualPrice: z.number().int().positive().max(10_000_000).optional(),
     })
     .parse(req.body);
-  return planRequest(text, plan ?? undefined, recent, usualPrice);
+  return quickReply(text, Boolean(plan)) ?? planRequest(text, plan ?? undefined, recent, usualPrice);
 });
 
 app.post("/api/jobs", async req => {
