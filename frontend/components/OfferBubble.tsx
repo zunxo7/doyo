@@ -47,19 +47,22 @@ type Props = {
   onAccept?: () => void;
   /** A later offer from the same worker replaced this one. */
   superseded?: boolean;
+  /** The worker already appeared above, so their rating and distance are not repeated. */
+  repeat?: boolean;
 };
 
 /**
  * A worker's message in the chat. When it carries an offer, it is the offer: who they are, their
  * price and their words in one card, where they said it, so the conversation reads top to bottom.
  */
-export default function OfferBubble({ line, onCounter, onAccept, superseded = false }: Props) {
+export default function OfferBubble({ line, onCounter, onAccept, superseded = false, repeat = false }: Props) {
   const t = useT();
   const colors = useColors();
   const s = useThemedStyles(makeOfferBubbleStyles);
   const actionable = Boolean(onAccept && onCounter);
   const [photoFailed, setPhotoFailed] = useState(false);
-  const facts = [line.jobs ? t("{jobs} jobs", { jobs: line.jobs }) : null, line.minutesAway != null ? t("{min} min away", { min: line.minutesAway }) : null].filter(Boolean);
+  // Rating and distance are what a customer picks on; jobs done is left to the worker's profile.
+  const facts = repeat ? [] : [line.minutesAway != null ? t("{min} min away", { min: line.minutesAway }) : null].filter(Boolean);
 
   return (
     <View style={s.row}>
@@ -77,9 +80,9 @@ export default function OfferBubble({ line, onCounter, onAccept, superseded = fa
             <Text style={[s.name, fontStyles.bold]} numberOfLines={1}>
               {line.name}
             </Text>
-            {line.rating || facts.length ? (
+            {(line.rating && !repeat) || facts.length ? (
               <View style={s.meta}>
-                {line.rating ? (
+                {line.rating && !repeat ? (
                   <>
                     <Star size={12} color="#ffd400" weight="fill" />
                     <Text style={[s.metaText, fontStyles.semiBold]}>{line.rating}</Text>
