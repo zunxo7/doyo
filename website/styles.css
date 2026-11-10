@@ -122,10 +122,9 @@ svg[class^="ico"], svg.avatar { flex: none; }
 .speaker { color: var(--text-2); font-size: 12px; line-height: 16px; font-weight: 600; margin: 0 0 3px 4px; }
 .bubble { width: fit-content; border-radius: 18px; border-bottom-left-radius: 6px; background: var(--surface); padding: 10px 14px; }
 /* Doyo speaks for the customer, so it sits on the customer's side. */
-.row.agent { flex-direction: row-reverse; }
-.row.agent .bubble { margin-left: auto; background: rgba(0, 186, 240, 0.14); box-shadow: inset 0 0 0 1.5px var(--accent); border-bottom-left-radius: 18px; border-bottom-right-radius: 6px; }
+.row.agent .bubble { background: rgba(0, 186, 240, 0.14); box-shadow: inset 0 0 0 1.5px var(--accent); }
 .typing { display: flex; align-items: center; gap: 5px; height: 40px; border-radius: 18px; border-bottom-left-radius: 6px; background: var(--surface); padding: 0 14px; }
-.row.agent .typing { background: rgba(0, 186, 240, 0.14); box-shadow: inset 0 0 0 1.5px var(--accent); border-bottom-left-radius: 18px; border-bottom-right-radius: 6px; }
+.row.agent .typing { background: rgba(0, 186, 240, 0.14); box-shadow: inset 0 0 0 1.5px var(--accent); }
 .typing i { width: 7px; height: 7px; border-radius: 4px; background: #fff; opacity: 0.4; animation: dot 0.6s ease-in-out infinite alternate; }
 .typing i:nth-child(2) { animation-delay: 0.16s; }
 .typing i:nth-child(3) { animation-delay: 0.32s; }
@@ -313,3 +312,31 @@ svg[class^="ico"], svg.avatar { flex: none; }
   .mq-track { gap: 32px; padding-right: 32px; }
   .mq-track span { gap: 12px; }
 }
+
+/* ---------- Chat cards, as in the app: job, offers and the booking share one surface ---------- */
+.jcard, .ocard { position: relative; overflow: hidden; border-radius: 18px; background: #2b2b2d; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); padding: 14px; }
+.jcard::before, .ocard::before { content: ""; position: absolute; inset: 0; background: url("assets/pattern.png") -30px -40px / 352px auto no-repeat; opacity: 0.06; pointer-events: none; }
+.jcard > *, .ocard > * { position: relative; }
+.jcard { margin-left: 38px; padding: 12px; }
+.jcard.booked { box-shadow: inset 0 0 0 1px var(--accent); }
+.jcard-head { display: flex; align-items: center; gap: 10px; }
+.jcard-head img, .jcard-avatar { width: 34px; height: 34px; flex: none; border-radius: 12px; background: #222224; padding: 4px; object-fit: contain; color: var(--accent); }
+.jcard-title { flex: 1; min-width: 0; display: grid; }
+.jcard-title b { font-size: 14px; line-height: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jcard-title span { display: flex; align-items: center; gap: 4px; color: var(--text-2); font-size: 11.5px; line-height: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jcard-price { display: grid; justify-items: end; }
+.jcard-price b { font-size: 16px; line-height: 20px; font-weight: 800; white-space: nowrap; }
+.jcard-price span { color: var(--text-2); font-size: 11px; line-height: 14px; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.tiles div { border-radius: 10px; background: #222224; padding: 7px 8px; display: grid; min-width: 0; }
+.tiles span { color: var(--text-2); font-size: 10.5px; line-height: 14px; }
+.tiles b { font-size: 12.5px; line-height: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tiles .link { color: var(--accent); }
+.ocard { width: 86%; border-bottom-left-radius: 6px; padding: 11px 12px 12px; }
+.ocard-head { display: flex; align-items: flex-start; gap: 8px; }
+.ocard-who { flex: 1; min-width: 0; display: grid; }
+.ocard-who b { font-size: 13.5px; line-height: 18px; font-weight: 700; }
+.ocard-who span { display: flex; align-items: center; gap: 3px; color: var(--text-2); font-size: 11px; line-height: 15px; white-space: nowrap; }
+.ocard-price { font-size: 17px; line-height: 21px; font-weight: 800; }
+.ocard-price.gone { color: var(--text-2); text-decoration: line-through; }
+.ocard p { margin-top: 6px; font-size: 13px; line-height: 18px; }

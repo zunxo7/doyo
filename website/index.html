@@ -15,7 +15,7 @@
     if (reduced || /[?&]static=1/.test(location.search)) root.classList.add("static");
   })();
 </script>
-<link rel="stylesheet" href="styles.css?v=e4869be8a4">
+<link rel="stylesheet" href="styles.css?v=d5a89ac0e6">
 </head>
 <body>
 
@@ -110,32 +110,25 @@
   
                 <div class="item me" data-step="1"><span class="sr">You: </span>Deep clean 3 rooms, female worker, under 700</div>
   
-                <div class="item card" id="plan" data-step="2" data-typing>
-                  <div class="card-title">Home cleaning</div>
-                  <div class="card-sub">3 rooms · Deep clean</div>
-                  <div class="card-divider"></div>
-                  <div class="card-line"><span>Where</span><b>G-10 Markaz, Islamabad</b></div>
-                  <div class="card-line"><span>Worker</span><b>Female</b></div>
-                  <div class="card-line"><span>Starts at</span><b>PKR 507</b></div>
-                  <div class="card-line"><span>Never over</span><b>PKR 700</b></div>
-                  <div class="card-line"><span>Pay with</span><b class="link">PayPal</b></div>
+                <div class="item jcard" id="plan" data-step="2" data-typing>
+                  <div class="jcard-head"><img src="assets/HomeServicesIcon.webp" alt="" width="34" height="34"><div class="jcard-title"><b>Home cleaning</b><span>3 rooms · Deep clean</span></div><div class="jcard-price"><b>PKR 507</b><span>to start</span></div></div>
+                  <div class="tiles"><div><span>Worker</span><b>Female</b></div><div><span>Never over</span><b>PKR 700</b></div><div><span>Pay with</span><b class="link">PayPal</b></div></div>
                   <div class="card-actions" aria-hidden="true"><span class="btn-sec">Change</span><span class="btn-pri">Book it</span></div>
                 </div>
-  
+
                 <div class="item row agent" id="onit" data-step="3" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">On it. Asking workers near you.</div></div></div>
-                <div class="item row" data-step="3" data-best="540"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="row-body"><div class="speaker">Ayesha K.</div><div class="bubble">Deep cleaning 3 rooms is my specialty. I can do it for PKR 540.</div></div></div>
-                <div class="item row" data-step="3" data-best="500"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="row-body"><div class="speaker">Sana R.</div><div class="bubble">I can do this deep clean for 3 rooms at PKR 500. Happy to get started.</div></div></div>
+                <div class="item row" data-step="3" data-best="540"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="ocard"><div class="ocard-head"><div class="ocard-who"><b>Ayesha K.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.9 · 212 jobs · 5 min away</span></div><b class="ocard-price">PKR 540</b></div><p>Floors, glass, windows and dusting all included. Can start soon.</p></div></div>
+                <div class="item row" data-step="3" data-best="500"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="ocard"><div class="ocard-head"><div class="ocard-who"><b>Sana R.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.8 · 141 jobs · 6 min away</span></div><b class="ocard-price">PKR 500</b></div><p>Happy to take this on, I can come over today.</p></div></div>
                 <div class="item row agent" data-step="3" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">Sana, could you do PKR 450?</div></div></div>
-                              <div class="item row" data-step="3"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="row-body"><div class="speaker">Sana R.</div><div class="bubble">500 is my best for a deep clean.</div></div></div>
-                              <div class="item row agent" data-step="4" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">Booking Sana at PKR 500, thank you.</div></div></div>
-  
-                <div class="item card booked" id="booked" data-step="4">
+                <div class="item row" data-step="3"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="ocard"><div class="ocard-head"><div class="ocard-who"><b>Sana R.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.8 · 141 jobs · 6 min away</span></div><b class="ocard-price">PKR 500</b></div><p>That's my best for a deep clean of three rooms.</p></div></div>
+                <div class="item row agent" data-step="4" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">Booking Sana at PKR 500, thank you.</div></div></div>
+
+                <div class="item jcard booked" id="booked" data-step="4">
                   <div class="booked-label">Booked</div>
-                  <div class="offer-top"><span class="card-title">Sana R.</span><span class="card-title">PKR 500</span></div>
-                  <div class="offer-meta"><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg><span>4.8 · 6 min · Saved PKR 7</span></div>
+                  <div class="jcard-head"><svg class="jcard-avatar" aria-hidden="true"><use href="#i-user"/></svg><div class="jcard-title"><b>Sana R.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.8 · 6 min</span></div><div class="jcard-price"><b>PKR 500</b><span>Saved PKR 7</span></div></div>
                   <div class="btn-pri wide" aria-hidden="true">Track on map</div>
                 </div>
-  
+
                 <div class="item row agent" id="paid" data-step="5" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">PKR 500 paid with PayPal. Doyo saved you PKR 7.</div></div></div>
   
                 <div class="row agent typing-row" id="typing" aria-hidden="true"><svg class="avatar"><use href="#i-doyo"/></svg><div class="typing"><i></i><i></i><i></i></div></div>
