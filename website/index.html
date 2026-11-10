@@ -15,7 +15,7 @@
     if (reduced || /[?&]static=1/.test(location.search)) root.classList.add("static");
   })();
 </script>
-<link rel="stylesheet" href="styles.css?v=3b1725fb1c">
+<link rel="stylesheet" href="styles.css?v=d1d7e1ec38">
 </head>
 <body>
 
@@ -110,22 +110,23 @@
   
                 <div class="item me" data-step="1"><span class="sr">You: </span>Deep clean 3 rooms, female worker, under 700</div>
   
-                <div class="item jcard" id="plan" data-step="2" data-typing>
+                <div class="item row agent" data-step="2" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">Got it: a deep clean for 3 rooms, female worker, never over PKR 700.</div></div></div>
+                <div class="item jcard" id="plan" data-step="2">
                   <div class="jcard-head"><img src="assets/HomeServicesIcon.webp" alt="" width="34" height="34"><div class="jcard-title"><b>Home cleaning</b><span>3 rooms · Deep clean</span></div></div>
                   <div class="tiles"><div><span>Starts at</span><b>PKR 507</b></div><div><span>Never over</span><b>PKR 700</b></div><div><span>Worker</span><b>Female</b></div><div><span>Pay with</span><b class="link">PayPal</b></div></div>
                   <div class="card-actions" aria-hidden="true"><span class="btn-sec">Change</span><span class="btn-pri">Book it</span></div>
                 </div>
 
                 <div class="item row agent" id="onit" data-step="3" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">On it. Asking workers near you.</div></div></div>
-                <div class="item row" data-step="3" data-best="540"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="ocard"><div class="ocard-head"><div class="ocard-who"><b>Ayesha K.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.9 · 212 jobs · 5 min away</span></div><b class="ocard-price">PKR 540</b></div><p>Floors, glass, windows and dusting all included. Can start soon.</p></div></div>
-                <div class="item row" data-step="3" data-best="500"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="ocard"><div class="ocard-head"><div class="ocard-who"><b>Sana R.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.8 · 141 jobs · 6 min away</span></div><b class="ocard-price">PKR 500</b></div><p>Happy to take this on, I can come over today.</p></div></div>
+                <div class="item row" data-step="3" data-best="540"><img class="avatar photo" src="assets/avatars/ayesha.webp" alt="" width="32" height="32"><div class="ocard"><div class="ocard-head"><div class="ocard-who"><b>Ayesha K.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.9 · 212 jobs · 5 min away</span></div><b class="ocard-price">PKR 540</b></div><p>Floors, glass, windows and dusting all included. Can start soon.</p></div></div>
+                <div class="item row" id="sana-first" data-step="3" data-best="500"><img class="avatar photo" src="assets/avatars/sana.webp" alt="" width="32" height="32"><div class="ocard"><div class="ocard-head"><div class="ocard-who"><b>Sana R.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.8 · 141 jobs · 6 min away</span></div><b class="ocard-price">PKR 500</b></div><p>Happy to take this on, I can come over today.</p></div></div>
                 <div class="item row agent" data-step="3" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">Sana, could you do PKR 450?</div></div></div>
-                <div class="item row" data-step="3"><svg class="avatar accent" aria-hidden="true"><use href="#i-user"/></svg><div class="ocard"><div class="ocard-head"><div class="ocard-who"><b>Sana R.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.8 · 141 jobs · 6 min away</span></div><b class="ocard-price">PKR 500</b></div><p>That's my best for a deep clean of three rooms.</p></div></div>
+                <div class="item row" id="sana-rebid" data-step="3"><img class="avatar photo" src="assets/avatars/sana.webp" alt="" width="32" height="32"><div class="ocard"><div class="ocard-head"><div class="ocard-who"><b>Sana R.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.8 · 141 jobs · 6 min away</span></div><b class="ocard-price">PKR 500</b></div><p><span class="hl">PKR 500</span> is my best for a deep clean of three rooms.</p></div></div>
                 <div class="item row agent" data-step="4" data-typing><svg class="avatar" aria-hidden="true"><use href="#i-doyo"/></svg><div class="row-body"><div class="bubble">Booking Sana at PKR 500, thank you.</div></div></div>
 
                 <div class="item jcard booked" id="booked" data-step="4">
                   <div class="booked-label">Booked</div>
-                  <div class="jcard-head"><svg class="jcard-avatar" aria-hidden="true"><use href="#i-user"/></svg><div class="jcard-title"><b>Sana R.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.8 · 6 min</span></div><div class="jcard-price"><b>PKR 500</b><span>Saved PKR 7</span></div></div>
+                  <div class="jcard-head"><div class="jcard-title"><b>Sana R.</b><span><svg class="ico-13 star" aria-hidden="true"><use href="#i-star"/></svg>4.8 · 6 min away</span></div><div class="jcard-price"><b>PKR 500</b><span>Saved PKR 7</span></div></div>
                   <div class="btn-pri wide" aria-hidden="true">Track on map</div>
                 </div>
 
@@ -260,6 +261,6 @@
 
 <script src="assets/vendor/gsap.min.js"></script>
 <script src="assets/vendor/ScrollTrigger.min.js"></script>
-<script src="script.js?v=1fb83ae1ef"></script>
+<script src="script.js?v=fd6a960d36"></script>
 </body>
 </html>

@@ -110,9 +110,10 @@
   gsap.timeline({ defaults: { ease: "expo.out" } })
     .from(".hero h1 .line > span", { yPercent: 115, duration: 1.1, stagger: 0.09 }, 0.1)
     .from(".hero .fade-up", { y: 28, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, 0.5)
-    .from(".tilt", { y: 120, autoAlpha: 0, duration: 1.3 }, 0.2)
-    .from(".shard-a", { xPercent: -30, scale: 0.7, autoAlpha: 0, duration: 1.3 }, 0.3)
-    .from(".shard-b", { xPercent: 30, scale: 0.7, autoAlpha: 0, duration: 1.3 }, 0.36)
+    .from(".tilt", { y: 120, duration: 1.3 }, 0.2)
+    .from(".tilt", { autoAlpha: 0, duration: 0.3, ease: "power1.out" }, 0.2)
+    .from(".shard-a", { xPercent: -30, scale: 0.7, autoAlpha: 0, duration: 1.1 }, 0.55)
+    .from(".shard-b", { xPercent: 30, scale: 0.7, autoAlpha: 0, duration: 1.1 }, 0.62)
     .from(".chip-limit", { scale: 0.6, autoAlpha: 0, duration: 0.7, ease: "back.out(1.8)" }, 0.9);
 
   // On a phone the hero is a plain stacked layout: nothing is tied to the scroll.
