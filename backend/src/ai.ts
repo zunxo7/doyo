@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 const SIM_SPEED = Math.max(Number(process.env.SIM_SPEED) || 1, 0.1);
 const WORKER_MODEL = "claude-haiku-5-5";
 // Bounds what a public demo can spend; past it every decision falls back to rules.
-const DAILY_CALL_CAP = 300;
+const DAILY_CALL_CAP = 1000;
 
 const hasKey = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
 export const client = hasKey ? new Anthropic() : null;
@@ -13,7 +13,8 @@ let usage = { day: "", calls: 0 };
 export function spendCall(): boolean {
   const day = new Date().toISOString().slice(0, 10);
   if (usage.day !== day) usage = { day, calls: 0 };
-  return ++usage.calls <= DAILY_CALL_CAP;
+  if (++usage.calls === DAILY_CALL_CAP + 1) console.warn(`AI daily cap of ${DAILY_CALL_CAP} calls reached; rules take over until tomorrow`);
+  return usage.calls <= DAILY_CALL_CAP;
 }
 
 export const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms / SIM_SPEED));
