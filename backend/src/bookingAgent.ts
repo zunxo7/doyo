@@ -182,14 +182,14 @@ function ruleCall(jobId: string, turn: number, countered: Set<string>): Call {
   return { name: "wait_for_offers", input: { note: "Those offers are over your budget, so I'm waiting." } };
 }
 
-export async function runBookingAgent(jobId: string): Promise<void> {
+export async function runBookingAgent(jobId: string, resumed = false): Promise<void> {
   const job = jobs.getJob(jobId);
   const brief = { service: job.service, detail: job.detail, worker_preference: job.workerPreference };
   const countered = new Set<string>();
   let useRules = false;
   let modelCalls = 0;
 
-  jobs.updateAgent(jobId, {}, "On it. Asking workers near you.");
+  if (!resumed) jobs.updateAgent(jobId, {}, "On it. Asking workers near you.");
   // The first move is always to wait for bids, so it is made without asking the model.
   const opening = await execute(jobId, { name: "wait_for_offers", input: {} });
   const messages: Anthropic.MessageParam[] = [

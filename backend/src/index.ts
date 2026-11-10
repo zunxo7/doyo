@@ -9,7 +9,7 @@ import { advanceDemo, startAgents } from "./agents.ts";
 import * as ops from "./ops.ts";
 import { runTurn, type TurnRequest } from "./opsLlm.ts";
 import { registerOta } from "./ota.ts";
-import { planRequest } from "./bookingAgent.ts";
+import { planRequest, runBookingAgent } from "./bookingAgent.ts";
 import { SERVICE_SCOPE } from "./scope.ts";
 import { quickReply } from "./router.ts";
 import * as paypal from "./paypal.ts";
@@ -314,6 +314,11 @@ app.post("/api/jobs/:id/agent/stop", async (req: FastifyRequest<IdParams>) => {
   return { ok: true };
 });
 
+app.post("/api/jobs/:id/agent/resume", async (req: FastifyRequest<IdParams>) => {
+  if (jobs.resumeAgent(req.params.id, actor(req))) void runBookingAgent(req.params.id, true).catch(console.warn);
+  return { ok: true };
+});
+
 app.post("/api/jobs/:id/offers", async (req: FastifyRequest<IdParams>) => {
   const input = offerBody.parse(req.body);
   const workerId = actor(req);
@@ -333,7 +338,9 @@ app.post("/api/jobs/:id/offers/:offerId/accept", async (req: FastifyRequest<Offe
   acceptedOffer: jobs.acceptOffer(req.params.id, req.params.offerId, actor(req)),
 }));
 app.post("/api/jobs/:id/offers/:offerId/decline", async (req: FastifyRequest<OfferParams>) => {
-  jobs.declineOffer(req.params.id, req.params.offerId, actor(req));
+  // With a counter, the worker sees the customer's price on their card, as with Doyo's counters.
+  const { counter } = z.object({ counter: z.number().int().positive().max(10_000_000).optional() }).parse(req.body ?? {});
+  jobs.declineOffer(req.params.id, req.params.offerId, actor(req), counter);
   return { ok: true };
 });
 app.post("/api/jobs/:id/offers/:offerId/cancel", async (req: FastifyRequest<OfferParams>) => {

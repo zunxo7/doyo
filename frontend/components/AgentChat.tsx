@@ -16,6 +16,7 @@ import { CaretDown, List, MapPin, NotePencil, PaperPlaneRight, SquaresFour, Star
 import AppIcon from "./AppIcon";
 import ChatServicesSheet from "./ChatServicesSheet";
 import PayPalCheckout from "./PayPalCheckout";
+import PriceInputAlert from "./PriceInputAlert";
 import ScreenBackground from "./ScreenBackground";
 import type { Offer } from "./OffersOverlay";
 import { useSettings, useT } from "../contexts/SettingsContext";
@@ -28,6 +29,8 @@ import {
   openJobRoomSocket,
   planAgentRequest,
   stopJobAgent,
+  declineBiddingOffer,
+  resumeJobAgent,
   summarizeJobDetails,
   type AgentPlan,
   type JobAgent,
@@ -180,6 +183,7 @@ export default function AgentChat({
   const [agent, setAgent] = useState<JobAgent | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [booked, setBooked] = useState<Offer | null>(null);
+  const [countering, setCountering] = useState<Offer | null>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [servicesOpen, setServicesOpen] = useState(false);
   const nextId = useRef((draft?.items.at(-1)?.id ?? 0) + 1);
@@ -455,6 +459,24 @@ export default function AgentChat({
     stopJobAgent(request.jobId).catch(() => undefined);
   };
 
+  /** The customer names their own price to one worker; they see it on their card, as with Doyo's counters. */
+  const counter = async (offer: Offer, price: number) => {
+    if (!request) return;
+    say("me", t("{name}, could you do PKR{price}?", { name: offer.name.split(" ")[0], price: price.toLocaleString() }));
+    setOffers(current => current.filter(item => item.id !== offer.id));
+    try {
+      await declineBiddingOffer(request.jobId, offer.id, request.customerId, price);
+    } catch (error) {
+      say("doyo", error instanceof Error && error.message ? error.message : t("That offer is no longer available."));
+    }
+  };
+
+  const letDoyo = () => {
+    if (!request) return;
+    setAgent(current => (current ? { ...current, status: "working" } : current));
+    resumeJobAgent(request.jobId).catch(() => undefined);
+  };
+
   const accept = async (offer: Offer) => {
     if (!request) return;
     try {
@@ -655,9 +677,14 @@ export default function AgentChat({
                     {offer.rating} · {t("{min} min", { min: offer.minutesAway })}
                   </Text>
                 </View>
-                <TouchableOpacity style={[s.primaryButton, s.offerAccept]} activeOpacity={0.9} onPress={() => void accept(offer)}>
-                  <Text style={[s.primaryText, fontStyles.semiBold]}>{t("Accept")}</Text>
-                </TouchableOpacity>
+                <View style={s.cardActions}>
+                  <TouchableOpacity style={s.secondaryButton} activeOpacity={0.85} onPress={() => setCountering(offer)}>
+                    <Text style={[s.secondaryText, fontStyles.semiBold]}>{t("Counter")}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={s.primaryButton} activeOpacity={0.9} onPress={() => void accept(offer)}>
+                    <Text style={[s.primaryText, fontStyles.semiBold]}>{t("Accept")}</Text>
+                  </TouchableOpacity>
+                </View>
               </Reanimated.View>
             ))
           : null}
@@ -701,9 +728,9 @@ export default function AgentChat({
           <TouchableOpacity
             style={s.statusAction}
             activeOpacity={0.85}
-            onPress={choosing ? () => void cancelRequest() : takeOver}
+            onPress={choosing ? letDoyo : takeOver}
           >
-            <Text style={[s.statusActionText, fontStyles.semiBold]}>{choosing ? t("Cancel") : t("Take over")}</Text>
+            <Text style={[s.statusActionText, fontStyles.semiBold]}>{choosing ? t("Let Doyo") : t("Take over")}</Text>
           </TouchableOpacity>
         </View>
       ) : null}
@@ -750,6 +777,18 @@ export default function AgentChat({
         </View>
       ) : null}
 
+      <PriceInputAlert
+        visible={!!countering}
+        title={countering ? t("Counter {name}", { name: countering.name.split(" ")[0] }) : ""}
+        message={countering ? t("They asked PKR{price}. Name your price.", { price: countering.price.toLocaleString() }) : undefined}
+        initialValue={countering ? Math.max(50, Math.round((countering.price * 0.9) / 10) * 10) : 0}
+        onClose={() => setCountering(null)}
+        onSubmit={price => {
+          const offer = countering;
+          setCountering(null);
+          if (offer) void counter(offer, price);
+        }}
+      />
       <PayPalCheckout url={paypalUrl} opening={paypalOpening} title={t("Link PayPal")} onApproved={() => void linkApproved()} onCancel={linkCancelled} />
       <ChatServicesSheet
         visible={servicesOpen}

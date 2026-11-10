@@ -85,7 +85,9 @@ async function decideBid(persona: Persona, job: Job, declinedPrice: number | nul
     fallback,
   );
   if (decision.action === "pass") return null;
-  const clamped = Math.min(Math.max(decision.price, job.price * MIN_BID_RATIO, floor), job.price * MAX_BID_RATIO);
+  // Answering a lower counter, a worker holds or comes down; they never ask for more than they already did.
+  const ceiling = Math.min(job.price * MAX_BID_RATIO, declinedPrice ?? Infinity);
+  const clamped = Math.min(Math.max(decision.price, job.price * MIN_BID_RATIO, floor), ceiling);
   const finalPrice = roundPrice(clamped);
   const message = withPrice(decision.message, decision.price, finalPrice) || `I can do it for PKR ${finalPrice}.`;
   return { price: finalPrice, message };

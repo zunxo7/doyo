@@ -443,8 +443,12 @@ export async function stopJobAgent(jobId: string): Promise<void> {
   await sendJson("POST", jobPath(jobId, "/agent/stop"));
 }
 
-export async function declineBiddingOffer(jobId: string, offerId: string, _customerId: string): Promise<void> {
-  await sendJson("POST", offerPath(jobId, offerId, "decline"));
+export async function declineBiddingOffer(jobId: string, offerId: string, _customerId: string, counter?: number): Promise<void> {
+  await sendJson("POST", offerPath(jobId, offerId, "decline"), counter ? { counter } : {});
+}
+
+export async function resumeJobAgent(jobId: string): Promise<void> {
+  await sendJson("POST", jobPath(jobId, "/agent/resume"));
 }
 
 export async function acceptBiddingOffer(jobId: string, offerId: string, _customerId: string): Promise<Offer> {

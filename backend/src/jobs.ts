@@ -299,6 +299,15 @@ export function stopAgent(jobId: string, customerId: string): void {
   if (job.agent?.status === "working") updateAgent(jobId, { status: "stopped" }, "You took over.");
 }
 
+/** Hands negotiation back to Doyo after the customer took over. Returns whether it restarted. */
+export function resumeAgent(jobId: string, customerId: string): boolean {
+  const job = getJob(jobId);
+  assertCustomer(job, customerId);
+  if (job.status !== "open" || job.agent?.status !== "stopped") return false;
+  updateAgent(jobId, { status: "working" }, "Back on it.");
+  return true;
+}
+
 export function cancelOffer(jobId: string, offerId: string, workerId: string): void {
   const job = getJob(jobId);
   const offer = getOffer(job, offerId);
