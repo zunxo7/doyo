@@ -1,26 +1,32 @@
 import { useEffect, useMemo, useState } from "react";
-import { GeoJSONSource, Layer } from "@maplibre/maplibre-react-native";
+import { View } from "react-native";
+import { GeoJSONSource, Layer, Marker } from "@maplibre/maplibre-react-native";
+import { Broom } from "phosphor-react-native";
 import type { LngLat } from "../services/routing";
 
-/** The map image name the worker marker is registered under (see `Images` on the tracking map). */
-export const WORKER_MARKER_IMAGE = "worker-marker";
+const MARKER = {
+  width: 38,
+  height: 38,
+  borderRadius: 19,
+  backgroundColor: "#00baf0",
+  borderWidth: 3,
+  borderColor: "#ffffff",
+  alignItems: "center" as const,
+  justifyContent: "center" as const,
+};
 
-const MARKER_LAYOUT = {
-  "icon-image": WORKER_MARKER_IMAGE,
-  "icon-size": 0.36,
-  "icon-allow-overlap": true,
-  "icon-ignore-placement": true,
-} as const;
-
-const point = (coordinates: LngLat) => ({ type: "Feature" as const, geometry: { type: "Point" as const, coordinates }, properties: {} });
-
-/** The worker marker as a map symbol: drawn by the map, so it never blinks as it moves. */
+/**
+ * The worker on the map: the broom badge in a Marker, which the map moves natively and which is made
+ * for frequent updates. A view annotation blinked when moved often, and a symbol layer fades every
+ * new position in from nothing.
+ */
 export function WorkerSymbol({ id, at }: { id: string; at: LngLat }) {
-  const data = useMemo(() => point(at), [at[0], at[1]]);
   return (
-    <GeoJSONSource id={id} data={data}>
-      <Layer id={`${id}-icon`} type="symbol" layout={MARKER_LAYOUT} />
-    </GeoJSONSource>
+    <Marker id={id} lngLat={at}>
+      <View style={MARKER}>
+        <Broom size={18} color="#ffffff" weight="fill" />
+      </View>
+    </Marker>
   );
 }
 

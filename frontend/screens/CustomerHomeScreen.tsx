@@ -76,7 +76,6 @@ import {
   Camera,
   type CameraRef,
   GeoJSONSource,
-  Images,
   Layer,
   Map,
   type ViewStateChangeEvent,
@@ -89,7 +88,7 @@ import FadeInView from "../components/FadeInView";
 import DemoFlowBar, { DEMO_BAR_HEIGHT } from "../components/DemoFlowBar";
 import LaunchCountdown from "../components/LaunchCountdown";
 import SmoothedMarker, { SmoothedPoint } from "../components/SmoothedMarker";
-import RouteDrive, { WORKER_MARKER_IMAGE } from "../components/RouteDrive";
+import RouteDrive from "../components/RouteDrive";
 import MenuDrawer from "../components/MenuDrawer";
 import AgentChat from "../components/AgentChat";
 import PayPalCheckout from "../components/PayPalCheckout";
@@ -1577,7 +1576,6 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
               }
             : {})}
         />
-        <Images images={{ [WORKER_MARKER_IMAGE]: require("../assets/images/worker-marker.png") }} />
         {mode === "tracking" && demoDrive ? <RouteDrive path={demoDrive} durationMs={DEMO_DRIVE_MS} lineColor={colors.accent} /> : null}
         {mode === "tracking" && trackingRemainingRoute && !demoDrive ? (
           <GeoJSONSource id="tracking-route" data={trackingRemainingRoute}>
