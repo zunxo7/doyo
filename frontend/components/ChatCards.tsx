@@ -6,6 +6,19 @@ import { useColors, useThemedStyles } from "../hooks/useColors";
 import { makeChatCardStyles } from "../styles/ChatCards.styles";
 import { fontStyles } from "../styles/fonts";
 
+/** The app's cleaning-tools pattern, faint inside a card, at the size it has on the screen behind. */
+export function CardPattern() {
+  return (
+    <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}>
+      <Image
+        source={require("../assets/images/BackgroundPatternNeutral.png")}
+        style={{ position: "absolute", top: -40, left: -30, width: 352, height: 768, opacity: 0.06 }}
+        resizeMode="cover"
+      />
+    </View>
+  );
+}
+
 const SERVICE_IMAGES = {
   home: require("../assets/images/HomeServicesIcon.webp"),
   vehicle: require("../assets/images/VehicleServicesIcon.webp"),
@@ -36,6 +49,7 @@ export function JobCard({ service, title, summary, address, worker, ask, limit, 
   const s = useThemedStyles(makeChatCardStyles);
   return (
     <View style={s.card}>
+      <CardPattern />
       <View style={s.head}>
         <View style={s.icon}>
           <Image source={SERVICE_IMAGES[service]} style={s.iconImage} resizeMode="contain" />
@@ -113,6 +127,7 @@ export function BookedCard({ name, avatar, rating, minutesAway, price, saved, on
   const s = useThemedStyles(makeChatCardStyles);
   return (
     <View style={[s.card, s.cardBooked]}>
+      <CardPattern />
       <Text style={[s.label, fontStyles.semiBold]}>{t("Booked")}</Text>
       <View style={s.head}>
         <View style={s.icon}>

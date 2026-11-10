@@ -1,5 +1,5 @@
-import type { ReactElement } from "react";
-import { ViewAnnotation } from "@maplibre/maplibre-react-native";
+import { useMemo, type ReactElement } from "react";
+import { GeoJSONSource, Layer, ViewAnnotation } from "@maplibre/maplibre-react-native";
 import { useSmoothedPosition } from "../hooks/useSmoothedPosition";
 import type { LngLat } from "../services/routing";
 
@@ -33,5 +33,32 @@ export default function SmoothedMarker({ id, target, children }: Props) {
     <ViewAnnotation id={id} lngLat={position}>
       {children}
     </ViewAnnotation>
+  );
+}
+
+type PointProps = {
+  id: string;
+  target: LngLat | null;
+  color: string;
+  ring: string;
+};
+
+/**
+ * A moving map point drawn by the map itself. A view annotation is a native view laid over the map,
+ * and re-placing it many times a second makes it blink; a circle layer moves with the map's own
+ * frames, so a driving worker stays visible and glued to the road.
+ */
+export function SmoothedPoint({ id, target, color, ring }: PointProps) {
+  const position = useSmoothedPosition(target);
+  const data = useMemo(
+    () => (position ? { type: "Feature" as const, geometry: { type: "Point" as const, coordinates: position }, properties: {} } : null),
+    [position],
+  );
+  if (!data) return null;
+  return (
+    <GeoJSONSource id={id} data={data}>
+      <Layer id={`${id}-ring`} type="circle" paint={{ "circle-radius": 17, "circle-color": ring }} />
+      <Layer id={`${id}-dot`} type="circle" paint={{ "circle-radius": 13, "circle-color": color }} />
+    </GeoJSONSource>
   );
 }

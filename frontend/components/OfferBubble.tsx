@@ -4,6 +4,7 @@ import { Star, UserCircle } from "phosphor-react-native";
 import { useT } from "../contexts/SettingsContext";
 import { useColors, useThemedStyles } from "../hooks/useColors";
 import { makeOfferBubbleStyles } from "../styles/OfferBubble.styles";
+import { CardPattern } from "./ChatCards";
 import { fontStyles } from "../styles/fonts";
 
 export type OfferLine = {
@@ -42,6 +43,7 @@ export default function OfferBubble({ line, onCounter, onAccept, superseded = fa
         <UserCircle size={32} color={line.avatar === "female" ? colors.accent : colors.white} weight="fill" />
       </View>
       <View style={[s.card, actionable && s.cardLive]}>
+        <CardPattern />
         <View style={s.head}>
           <View style={s.who}>
             <Text style={[s.name, fontStyles.bold]} numberOfLines={1}>

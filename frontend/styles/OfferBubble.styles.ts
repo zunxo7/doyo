@@ -26,6 +26,7 @@ export const makeOfferBubbleStyles = (c: Palette) =>
       paddingHorizontal: 14,
       paddingTop: 12,
       paddingBottom: 13,
+      overflow: "hidden",
     },
     cardLive: {
       borderColor: c.accent,

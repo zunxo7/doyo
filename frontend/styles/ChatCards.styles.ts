@@ -15,6 +15,7 @@ export const makeChatCardStyles = (c: Palette) =>
       borderWidth: 1,
       borderColor: CARD_LINE,
       padding: 16,
+      overflow: "hidden",
     },
     cardBooked: {
       borderColor: c.accent,

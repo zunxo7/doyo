@@ -87,7 +87,7 @@ import CardPatches from "../components/CardPatches";
 import FadeInView from "../components/FadeInView";
 import DemoFlowBar, { DEMO_BAR_HEIGHT } from "../components/DemoFlowBar";
 import LaunchCountdown from "../components/LaunchCountdown";
-import SmoothedMarker from "../components/SmoothedMarker";
+import SmoothedMarker, { SmoothedPoint } from "../components/SmoothedMarker";
 import MenuDrawer from "../components/MenuDrawer";
 import AgentChat from "../components/AgentChat";
 import PayPalCheckout from "../components/PayPalCheckout";
@@ -1577,11 +1577,7 @@ export default function CustomerHomeScreen({ navigation, route }: Props) {
           </ViewAnnotation>
         ) : null}
         {mode === "tracking" && trackingWorkerLocation ? (
-          <SmoothedMarker id="tracking-worker" target={trackingWorkerLocation}>
-            <View style={ts.workerMarker}>
-              <Broom size={18} color={colors.paper} weight="fill" />
-            </View>
-          </SmoothedMarker>
+          <SmoothedPoint id="tracking-worker" target={trackingWorkerLocation} color={colors.accent} ring={colors.paper} />
         ) : null}
       </Map>
       </Reanimated.View>
