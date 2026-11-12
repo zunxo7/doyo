@@ -273,7 +273,11 @@ export function startAgents(): void {
     if (isSimCustomer(job.customerId)) void acceptOffer(job, offer).catch(console.warn);
     if (!job.agent) return;
     if (offer.message) jobs.updateAgent(job.id, {}, offer.message, offer);
-    else void offerLine(job, offer).then(line => jobs.updateAgent(job.id, {}, line, offer)).catch(console.warn);
+    else {
+      // A real worker's line is written by the model after the bid arrives; it keeps the bid's place in the chat.
+      const at = Date.now();
+      void offerLine(job, offer).then(line => jobs.updateAgent(job.id, {}, line, offer, false, at)).catch(console.warn);
+    }
   });
 
   jobs.events.on("job:phase", (job: Job) => {

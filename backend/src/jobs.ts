@@ -311,6 +311,7 @@ export function updateAgent(
   note?: string,
   worker?: Pick<Offer, "name" | "avatar"> & Partial<Offer>,
   payment = false,
+  at = Date.now(),
 ): void {
   const job = getJob(jobId);
   if (!job.agent) return;
@@ -321,7 +322,7 @@ export function updateAgent(
     const past = offer?.workerId ? pastJobsWith(job.customerId, offer.workerId) : [];
     job.agent.log.push({
       text: note,
-      at: Date.now(),
+      at,
       from: worker ? "worker" : "doyo",
       ...(payment ? { payment: true } : {}),
       name: worker?.name,
@@ -329,6 +330,8 @@ export function updateAgent(
       workerId: worker?.workerId ?? (worker && "id" in worker && typeof worker.id === "string" && worker.id.startsWith("sim-") ? worker.id : undefined),
       ...(offer ? { offerId: offer.id, price: offer.price, rating: offer.rating, jobs: offer.jobs, minutesAway: offer.minutesAway, bookedBefore: past.length, lastStars: past.find(item => item.stars !== null)?.stars ?? null } : {}),
     });
+    // A line written after the fact still sits where its offer arrived.
+    job.agent.log.sort((a, b) => a.at - b.at);
   }
   saveJob(job);
   broadcast(job);
