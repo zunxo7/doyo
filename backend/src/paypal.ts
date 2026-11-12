@@ -233,19 +233,58 @@ async function payWorker(job: jobs.Job, payment: Payment | null): Promise<void> 
   jobs.recordPayout(workerId, amount, job.detail);
 }
 
+/**
+ * Authorizes the agreed price on the saved PayPal account the moment a deal is struck, so the money is
+ * committed at booking and only moves when the work is done. If PayPal refuses, the job is charged on completion.
+ */
+async function holdSaved(job: jobs.Job): Promise<void> {
+  const tokenId = savedToken(job.customerId);
+  const amount = job.acceptedPrice;
+  if (!tokenId || !amount || job.paypalHold) return;
+  const { result } = await orders.createOrder({
+    paypalRequestId: `hold-${job.id}`,
+    prefer: "return=representation",
+    body: {
+      intent: CheckoutPaymentIntent.Authorize,
+      purchaseUnits: [{ amount: usd(amount), description: job.detail, customId: job.id }],
+      paymentSource: { paypal: { vaultId: tokenId } },
+    },
+  });
+  const authorization = result.purchaseUnits?.[0]?.payments?.authorizations?.[0];
+  if (!result.id || !authorization?.id) throw new Error(`hold not authorized: ${result.status}`);
+  store.put<Payment>("payments", {
+    id: result.id,
+    kind: "hold",
+    userId: job.customerId,
+    amount,
+    status: "succeeded",
+    authorizationId: authorization.id,
+    captureId: null,
+    jobId: job.id,
+  });
+  jobs.setHold(job.id, { id: result.id, amount });
+  if (job.agent) jobs.updateAgent(job.id, {}, `PayPal is holding PKR ${amount}. It's charged only when the job is done.`);
+}
+
 async function settleHold(job: jobs.Job): Promise<void> {
   const payment = store.get<Payment>("payments", job.paypalHold!.id);
   if (!payment?.authorizationId || payment.status !== "succeeded") return;
   if (job.status === "completed") {
-    const { result } = await payments.captureAuthorizedPayment({
-      authorizationId: payment.authorizationId,
-      paypalRequestId: job.id,
-      prefer: "return=representation",
-      body: { amount: usd(job.acceptedPrice ?? job.price), finalCapture: true },
-    });
-    payment.captureId = result.id ?? null;
-    payment.status = "captured";
-    store.put("payments", payment);
+    try {
+      const { result } = await payments.captureAuthorizedPayment({
+        authorizationId: payment.authorizationId,
+        paypalRequestId: job.id,
+        prefer: "return=representation",
+        body: { amount: usd(job.acceptedPrice ?? job.price), finalCapture: true },
+      });
+      payment.captureId = result.id ?? null;
+      payment.status = "captured";
+      store.put("payments", payment);
+      jobs.setPaymentStatus(job.id, "paid");
+    } catch (error) {
+      console.warn("paypal capture failed:", error instanceof ApiError ? String(error.body).slice(0, 300) : error);
+      jobs.setPaymentStatus(job.id, "failed");
+    }
     await payWorker(job, payment);
     return;
   } else {
@@ -292,6 +331,12 @@ async function chargeSaved(job: jobs.Job): Promise<void> {
 }
 
 export function startPayments(): void {
+  jobs.events.on("offer:accepted", (job: jobs.Job) => {
+    if (job.payment !== "PayPal") return;
+    void holdSaved(job).catch(error =>
+      console.warn("paypal hold failed, charging on completion:", error instanceof ApiError ? String(error.body).slice(0, 300) : error),
+    );
+  });
   jobs.events.on("job:ended", (job: jobs.Job) => {
     const failed = (error: unknown) => console.warn("paypal settle failed:", error instanceof ApiError ? String(error.body).slice(0, 300) : error);
     if (job.paypalHold) void settleHold(job).catch(failed);

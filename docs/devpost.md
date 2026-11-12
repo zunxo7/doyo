@@ -31,7 +31,9 @@ Tell Doyo what you need. It negotiates with workers, books within your limit, an
    bookings or have it build a chart.
 7. Worker side: in the menu, tap **Worker mode**, go online, and send an offer on the request that arrives.
 
-Demo mode: everyone is placed at G-10 Markaz, Islamabad, and four AI workers answer every request.
+Demo mode: everyone is placed at G-10 Markaz, Islamabad. The four workers who bid (Ayesha, Bilal, Sana, Usman) are
+AI personas that stand in for real workers so a judge sees a live market; real workers use the same app's worker mode
+and bid alongside them.
 
 ## Inspiration
 
@@ -44,11 +46,12 @@ and moves the money.
 
 **Customer.** The home screen is a chat, in English, Urdu or Roman Urdu. Doyo turns "deep clean 3 rooms" into
 a job card with a starting price and a **Never over** limit. It posts the job, and workers' offers arrive in the
-chat as cards with photo, rating, distance and price. Doyo counters by name and books the best offer. The
+chat as cards with photo, rating, distance and price, plus the customer's own history with that worker ("You rated
+5★"). Doyo counters by name and books the best offer, weighing that history and what the customer paid last time. The
 customer can take over at any point to counter or accept, then hand back. Nothing is charged at booking: PayPal
 is charged the agreed price when the job is done.
 
-**Worker.** Requests arrive live. Accept the price or send your own. A counter shows on your card as
+**Worker.** In production every bid comes from a real worker. Requests arrive live. Accept the price or send your own. A counter shows on your card as
 "Customer offers PKR 450". Your share is paid to your PayPal when you complete the job.
 
 **Operations.** An AG Studio dashboard shows bookings, negotiations and PayPal money flow live, with an
@@ -63,8 +66,9 @@ assistant that answers questions and builds widgets on request.
   `counter_offer`, `raise_price`, `accept_offer`, `hand_back`. Each call carries the line Doyo says in the chat.
 - **Planner:** Claude Haiku with structured output turns text into a plan, reads it in the context of the
   conversation, and answers scope questions from the same service scope the app shows.
-- **Workers:** four Claude Haiku personas with their own price floors; they and real workers bid together.
-  Their messages state only true facts about the job.
+- **Simulated workers (demo only):** four Claude Haiku personas with their own price floors stand in for real
+  workers so the market is live for judges. Real workers bid through worker mode on the same job; the agent
+  treats both the same. Persona messages state only true facts about the job.
 - **Dashboard:** AG Studio with six custom widgets and a Claude-backed agent built on its agent framework.
 
 ## How we used PayPal
@@ -82,6 +86,8 @@ without another checkout, inside a limit the server enforces.
 ## How we used AI
 
 - It plans, negotiates, and explains every action in the chat.
+- It decides with the customer's history: how often they booked each worker, the stars they gave, and what they
+  paid last time for the same job.
 - It is constrained in code, not just in the prompt. The server refuses any booking over the customer's limit,
   and any booking more than 5% above the cheapest open offer; the refusal goes back to the agent, which
   decides again. A turn limit, a daily call cap and a rule-based fallback keep bookings working.
@@ -98,7 +104,7 @@ without another checkout, inside a limit the server enforces.
 
 ## What's next
 
-Local payment rails next to PayPal, holds for large jobs, and ratings and history as inputs to the agent.
+Local payment rails next to PayPal, and holds for large jobs.
 
 ## Built with
 

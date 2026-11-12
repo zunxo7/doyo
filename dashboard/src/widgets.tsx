@@ -77,7 +77,7 @@ export function MoneyFlow() {
   const job = jobs.find((item: Booking) => item.paymentStatus === "paid") ?? jobs.find((item: Booking) => item.agreed != null && !item.simulatedCustomer);
   if (!job || job.agreed == null) return <div className="dw dw-empty">No completed booking yet.</div>;
   const paid = job.paymentStatus === "paid";
-  const charge = job.paypal.find(item => item.kind === "charge");
+  const charge = job.paypal.find(item => item.kind === "charge" || item.status === "captured");
   const steps = [
     { label: paid ? "Customer charged" : "Customer pays", who: job.customer, amount: job.agreed, note: paid ? `PayPal order ${charge?.id ?? ""}` : job.payment === "PayPal" ? "PayPal, after the job" : "Cash" },
     { label: "Doyo keeps 15%", who: "Doyo", amount: job.commission, note: "Commission" },
@@ -182,7 +182,9 @@ export function ActivityFeed() {
     const at = job.log.at(-1)?.at ?? job.createdAt;
     if (job.status === "open") events.push({ key: `${job.id}o`, at, kind: "open", text: `Doyo is negotiating for ${job.customer}` });
     if (job.agreed && job.worker) events.push({ key: `${job.id}b`, at, kind: "booked", text: `${job.customer} booked ${job.worker} at ${pkr(job.agreed)}` });
-    const charge = job.paypal.find(item => item.kind === "charge" && item.status !== "failed");
+    const charge = job.paypal.find(item => (item.kind === "charge" || item.status === "captured") && item.status !== "failed");
+    const hold = job.paypal.find(item => item.kind === "hold");
+    if (hold) events.push({ key: `${job.id}h`, at: at + 0.5, kind: "booked", text: `PayPal holding ${pkr(hold.amount)} for ${job.customer}` });
     if (job.paymentStatus === "paid") events.push({ key: `${job.id}p`, at: at + 1, kind: "paid", text: `PayPal charged ${pkr(charge?.amount ?? job.agreed)}` });
     if (charge?.payoutBatchId) events.push({ key: `${job.id}w`, at: at + 2, kind: "payout", text: `${job.worker} paid ${pkr(job.workerShare)} by PayPal` });
   }

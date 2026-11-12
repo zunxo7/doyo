@@ -646,6 +646,13 @@ function recordEarning(job: Job): void {
   store.put("ledgers", ledger);
 }
 
+/** Records the PayPal authorization taken when the job was booked; it settles when the job ends. */
+export function setHold(jobId: string, hold: NonNullable<Job["paypalHold"]>): void {
+  const job = getJob(jobId);
+  job.paypalHold = hold;
+  saveJob(job);
+}
+
 export function setPaymentStatus(jobId: string, paymentStatus: Job["paymentStatus"]): void {
   const job = getJob(jobId);
   job.paymentStatus = paymentStatus;
