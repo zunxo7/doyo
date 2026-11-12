@@ -52,7 +52,8 @@ chat as cards with photo, rating, distance and price, plus the customer's own hi
 customer can take over at any point to counter or accept, then hand back. When the deal is struck, PayPal holds
 the agreed price; it is captured when the job is done and released if it's cancelled. If something was wrong, the
 customer says so in the chat: Doyo judges the complaint against what the job included and refunds the fair share
-through PayPal.
+through PayPal. With no photo or inspection, a refund rests on trust: only one automatic refund per customer a month,
+and vague or repeat claims go to a person and the worker instead.
 
 **Worker.** In production every bid comes from a real worker. Requests arrive live. Accept the price or send your own. A counter shows on your card as
 "Customer offers PKR 450". Your share is paid to your PayPal when you complete the job.
@@ -95,7 +96,7 @@ later without another checkout, inside a limit the server enforces.
 - It decides with the customer's history: how often they booked each worker, the stars they gave, and what they
   paid last time for the same job.
 - The mandate is enforced in code, not just in the prompt: no booking over the customer's limit or more than 5%
-  above the cheapest open offer, and no refund over half the price. A refusal goes back to the agent, which
+  above the cheapest open offer, no refund over half the price, and one automatic refund per customer a month. A refusal goes back to the agent, which
   decides again. A turn limit, a daily call cap and a rule-based fallback keep bookings working.
 - It is cheap where it can be: small talk ("hi", "salam", "thanks") is answered without a model call, and the
   agent only calls the model when the offers have changed.
