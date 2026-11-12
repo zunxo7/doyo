@@ -38,6 +38,8 @@ export type AgentLine = {
   // The customer's own history with this worker.
   bookedBefore?: number;
   lastStars?: number | null;
+  // A payment update after the booking; the chat shows it below the Booked card.
+  payment?: boolean;
 };
 export type AgentState = {
   status: "working" | "booked" | "stopped";
@@ -295,6 +297,7 @@ export function updateAgent(
   patch: Partial<Pick<AgentState, "status" | "offerId">>,
   note?: string,
   worker?: Pick<Offer, "name" | "avatar"> & Partial<Offer>,
+  payment = false,
 ): void {
   const job = getJob(jobId);
   if (!job.agent) return;
@@ -307,6 +310,7 @@ export function updateAgent(
       text: note,
       at: Date.now(),
       from: worker ? "worker" : "doyo",
+      ...(payment ? { payment: true } : {}),
       name: worker?.name,
       avatar: worker?.avatar,
       workerId: worker?.workerId ?? (worker && "id" in worker && typeof worker.id === "string" && worker.id.startsWith("sim-") ? worker.id : undefined),

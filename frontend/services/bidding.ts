@@ -50,6 +50,7 @@ export type JobAgent = {
     minutesAway?: number;
     bookedBefore?: number;
     lastStars?: number | null;
+    payment?: boolean;
   }[];
 };
 

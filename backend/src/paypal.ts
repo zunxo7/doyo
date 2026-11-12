@@ -263,7 +263,7 @@ async function holdSaved(job: jobs.Job): Promise<void> {
     jobId: job.id,
   });
   jobs.setHold(job.id, { id: result.id, amount });
-  if (job.agent) jobs.updateAgent(job.id, {}, `PayPal is holding PKR ${amount}. It's charged only when the job is done.`);
+  if (job.agent) jobs.updateAgent(job.id, {}, `PayPal is holding PKR ${amount}. It's charged only when the job is done.`, undefined, true);
 }
 
 async function settleHold(job: jobs.Job): Promise<void> {

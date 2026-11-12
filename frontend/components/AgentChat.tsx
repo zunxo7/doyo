@@ -633,6 +633,8 @@ export default function AgentChat({
 
         {(agent?.log ?? []).map((line, index, log) => {
           const key = `${line.at}${line.text}`;
+          // Payment updates follow the Booked card, below.
+          if (line.payment && booked) return null;
           if (line.from !== "worker") {
             return (
               <Reanimated.View key={key} entering={FadeInDown.duration(220)} layout={LinearTransition.duration(220)}>
@@ -672,6 +674,20 @@ export default function AgentChat({
             />
           </Reanimated.View>
         ) : null}
+
+        {booked
+          ? (agent?.log ?? [])
+              .filter(line => line.payment)
+              .map(line => (
+                <Reanimated.View key={`${line.at}${line.text}`} entering={FadeInDown.duration(220)} layout={LinearTransition.duration(220)}>
+                  <DoyoRow>
+                    <View style={s.bubble}>
+                      <Text style={[s.bubbleText, fontStyles.medium]}>{line.text}</Text>
+                    </View>
+                  </DoyoRow>
+                </Reanimated.View>
+              ))
+          : null}
 
         {showTyping ? (
           <DoyoRow>
