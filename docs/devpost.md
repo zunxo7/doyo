@@ -46,11 +46,11 @@ In Pakistan you book a cleaner, a car wash or a barber by phoning around and hag
 
 ## What it does
 
-**Customer.** The home screen is a chat, in English, Urdu or Roman Urdu. Doyo turns "deep clean 3 rooms" into a job card with a starting price and a **Never over** limit. It posts the job, and workers' offers arrive in the chat as cards with photo, rating, distance and price, plus the customer's own history with that worker ("You rated 5★"). Doyo counters by name and books the best offer, weighing that history and what the customer paid last time. The customer can take over at any point to counter or accept, then hand back. When the deal is struck, PayPal holds the agreed price; it is captured when the job is done and released if it's cancelled. If something was wrong, the customer says so in the chat: Doyo judges the complaint against what the job included and refunds the fair share through PayPal. With no photo or inspection, a refund rests on trust: only one automatic refund per customer a month, and vague or repeat claims go to a person and the worker instead.
+**Customer.** The home screen is a chat, in English, Urdu or Roman Urdu. Doyo turns "deep clean 3 rooms" into a job card with a starting price and a **Never over** limit. It posts the job, and workers' offers arrive in the chat as cards with photo, rating, distance and price, plus the customer's own history with that worker ("You rated 5★"). Doyo counters by name and books the best offer, weighing that history and what the customer paid last time. The customer can take over at any point to counter or accept, then hand back. When the deal is struck, PayPal holds the agreed price; it is captured when the job is done and released if it's cancelled. If something was wrong, the customer says so in the chat. Doyo asks for a photo, Claude checks it against what the job included, and refunds the fair share through PayPal. A photo that doesn't show the problem goes to a person, who sees it with Claude's note on the operations dashboard and can refund from there.
 
-**Worker.** In production every bid comes from a real worker. Requests arrive live. Accept the price or send your own. A counter shows on your card as "Customer offers PKR 450". Your share is paid to your PayPal when you complete the job.
+**Worker.** In production every bid comes from a real worker; a switch in Settings turns the demo's AI bidders off so only real workers bid. Requests arrive live. Accept the price or send your own. A counter shows on your card as "Customer offers PKR 450". Your share is paid to your PayPal when you complete the job.
 
-**Operations.** An AG Studio dashboard shows bookings, negotiations and PayPal money flow live, with an assistant that answers questions and builds widgets on request.
+**Operations.** An AG Studio dashboard shows bookings, negotiations and PayPal money flow live, with an assistant that answers questions and builds widgets on request. A Reviews page (AG Grid) lists complaints that need a person, with the photo and Claude's note.
 
 ## How we built it
 
@@ -78,7 +78,7 @@ Vault is what makes the agent useful: the customer approves PayPal once, and Doy
 
 - It is agentic commerce end to end: it plans, negotiates, books, pays and settles disputes, and explains every action in the chat. The agent decides; the customer's mandate (budget, price rule, refund cap) bounds it, enforced on the server like the mandates in Google's AP2 and Visa Intelligent Commerce.
 - It decides with the customer's history: how often they booked each worker, the stars they gave, and what they paid last time for the same job.
-- The mandate is enforced in code, not just in the prompt: no booking over the customer's limit or more than 5% above the cheapest open offer, no refund over half the price, and one automatic refund per customer a month. A refusal goes back to the agent, which decides again. A turn limit, a daily call cap and a rule-based fallback keep bookings working.
+- The mandate is enforced in code, not just in the prompt: no booking over the customer's limit or more than 5% above the cheapest open offer, no refund over half the price, and no refund for a repeat complaint without a photo that shows the problem. A refusal goes back to the agent, which decides again. A turn limit, a daily call cap and a rule-based fallback keep bookings working.
 - It is cheap where it can be: small talk ("hi", "salam", "thanks") is answered without a model call, and the agent only calls the model when the offers have changed.
 
 ## Challenges
@@ -89,7 +89,7 @@ Vault is what makes the agent useful: the customer approves PayPal once, and Doy
 
 ## What's next
 
-Photo evidence for complaints, standing mandates ("wash my car every Friday under PKR 600") that the agent books and pays on its own, and local payment rails next to PayPal.
+Standing mandates ("wash my car every Friday under PKR 600") that the agent books and pays on its own, and local payment rails next to PayPal.
 
 ## Built with
 
