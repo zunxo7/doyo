@@ -79,6 +79,7 @@ function Decision({ review, onDone }: { review: Review; onDone: () => void }) {
 
   return (
     <aside className="rv-card">
+      <div className="rv-scroll">
       <button type="button" className="rv-photo" onClick={() => review.photo && setZoom(true)} disabled={!review.photo} aria-label="Open photo">
         {review.photo ? (
           <>
@@ -133,6 +134,7 @@ function Decision({ review, onDone }: { review: Review; onDone: () => void }) {
         </>
       )}
       {error ? <p className="rv-error">{error}</p> : null}
+      </div>
       {zoom && review.photo ? (
         <button type="button" className="rv-zoom" onClick={() => setZoom(false)} aria-label="Close photo">
           <img src={review.photo} alt="Photo the customer sent" />
