@@ -260,7 +260,7 @@ export default function AgentChat({
             ...current.filter(item => item.kind !== "plan"),
             ...log.map((line): ChatItem =>
               line.from === "worker"
-                ? { id: nextId.current++, kind: "worker", text: line.text, name: line.name, avatar: line.avatar, workerId: line.workerId, price: line.price, rating: line.rating, jobs: line.jobs, minutesAway: line.minutesAway }
+                ? { id: nextId.current++, kind: "worker", text: line.text, name: line.name, avatar: line.avatar, workerId: line.workerId, price: line.price, rating: line.rating, jobs: line.jobs, minutesAway: line.minutesAway, bookedBefore: line.bookedBefore, lastStars: line.lastStars }
                 : { id: nextId.current++, kind: "agent", text: line.text },
             ),
             { id: nextId.current++, kind: "doyo", text: receipt + savedLine },

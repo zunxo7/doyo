@@ -48,6 +48,8 @@ export type JobAgent = {
     rating?: string;
     jobs?: string;
     minutesAway?: number;
+    bookedBefore?: number;
+    lastStars?: number | null;
   }[];
 };
 

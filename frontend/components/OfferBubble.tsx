@@ -17,6 +17,8 @@ export type OfferLine = {
   rating?: string;
   jobs?: string;
   minutesAway?: number;
+  bookedBefore?: number;
+  lastStars?: number | null;
 };
 
 // "PKR 470", "PKR1,200", "Rs. 500" and the like, so a price stands out wherever a worker says it.
@@ -60,7 +62,8 @@ export default function OfferBubble({ line, onCounter, onAccept, superseded = fa
   const actionable = Boolean(onAccept && onCounter);
   const [photoFailed, setPhotoFailed] = useState(false);
   // Rating and distance are what a customer picks on; jobs done is left to the worker's profile.
-  const facts = [line.minutesAway != null ? t("{min} min away", { min: line.minutesAway }) : null].filter(Boolean);
+  const history = line.lastStars ? t("You rated {stars}★", { stars: line.lastStars }) : line.bookedBefore ? t("Booked before") : null;
+  const facts = [line.minutesAway != null ? t("{min} min away", { min: line.minutesAway }) : null, history].filter(Boolean);
 
   return (
     <View style={s.row}>

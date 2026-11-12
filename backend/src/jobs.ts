@@ -35,6 +35,9 @@ export type AgentLine = {
   rating?: string;
   jobs?: string;
   minutesAway?: number;
+  // The customer's own history with this worker.
+  bookedBefore?: number;
+  lastStars?: number | null;
 };
 export type AgentState = {
   status: "working" | "booked" | "stopped";
@@ -296,6 +299,7 @@ export function updateAgent(
   // A line that carries an offer is always kept: two workers may say the same words.
   if (note && (worker?.price != null || job.agent.log.at(-1)?.text !== note)) {
     const offer = worker?.price != null && worker.id ? worker : null;
+    const past = offer?.workerId ? pastJobsWith(job.customerId, offer.workerId) : [];
     job.agent.log.push({
       text: note,
       at: Date.now(),
@@ -303,7 +307,7 @@ export function updateAgent(
       name: worker?.name,
       avatar: worker?.avatar,
       workerId: worker?.workerId ?? (worker && "id" in worker && typeof worker.id === "string" && worker.id.startsWith("sim-") ? worker.id : undefined),
-      ...(offer ? { offerId: offer.id, price: offer.price, rating: offer.rating, jobs: offer.jobs, minutesAway: offer.minutesAway } : {}),
+      ...(offer ? { offerId: offer.id, price: offer.price, rating: offer.rating, jobs: offer.jobs, minutesAway: offer.minutesAway, bookedBefore: past.length, lastStars: past.find(item => item.stars !== null)?.stars ?? null } : {}),
     });
   }
   saveJob(job);
@@ -555,6 +559,24 @@ export function bookingHistory(customerId: string) {
 
 export const completedBookings = (customerId: string) =>
   store.list<Job>("jobs").filter(job => job.customerId === customerId && job.status === "completed").length;
+
+/** The customer's finished jobs with one worker, newest first: what they paid and the stars they gave. */
+export function pastJobsWith(customerId: string, workerId: string) {
+  return store
+    .list<Job>("jobs")
+    .filter(job => job.customerId === customerId && job.acceptedWorkerId === workerId && job.status === "completed")
+    .sort((a, b) => (b.endedAt ?? 0) - (a.endedAt ?? 0))
+    .map(job => ({ service: job.service, price: job.acceptedPrice ?? job.price, stars: job.ratings.customer?.rating ?? null }));
+}
+
+/** What the customer last paid for the same job, or null if they never booked it. */
+export function lastPaid(customerId: string, service: string, detail: string): number | null {
+  const last = store
+    .list<Job>("jobs")
+    .filter(job => job.customerId === customerId && job.service === service && job.detail === detail && job.status === "completed")
+    .sort((a, b) => (b.endedAt ?? 0) - (a.endedAt ?? 0))[0];
+  return last ? (last.acceptedPrice ?? last.price) : null;
+}
 
 const average = (ratings: number[]) => (ratings.length ? ratings.reduce((sum, value) => sum + value, 0) / ratings.length : 5);
 

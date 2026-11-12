@@ -574,6 +574,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "{count} jobs near you": "آپ کے قریب {count} کام",
     "1 job near you": "آپ کے قریب 1 کام",
     "{min} min away": "{min} منٹ کی دوری پر",
+    "You rated {stars}★": "آپ نے {stars}★ دیے",
+    "Booked before": "پہلے بک کیا تھا",
     "{km} km": "{km} کلومیٹر",
     "Make offer": "آفر دیں",
     "Accept · PKR{price}": "قبول کریں · PKR{price}",
