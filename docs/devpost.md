@@ -25,11 +25,12 @@ Tell Doyo what you need. It negotiates with workers, books within your limit, an
 3. Type "Deep clean 3 rooms" or tap a suggestion, then **Book it**. PayPal is pre-linked to a sandbox account,
    so there is no PayPal sign-in and no real money.
 4. Watch Doyo negotiate. Tap **Take over** to counter or accept a worker yourself, or **Let Doyo** to hand back.
-5. When booked, tap **Track on map**, then **Continue demo flow**: the worker drives the route, arrives, starts
-   (code `0000`) and completes. PayPal is charged and the worker is paid out; the receipt appears in the chat.
-6. Dashboard: open https://letdoyo.com/dashboard with the same email and code. Tap **Ask Doyo** to ask about
+5. When booked, the chat shows PayPal holding the price. Tap **Track on map**, then **Continue demo flow**: the
+   worker drives the route, arrives, starts and completes. The hold is captured and the worker is paid out.
+6. Back in the chat, complain, e.g. "the windows still have streaks". Doyo decides a refund and sends it through PayPal.
+7. Dashboard: open https://letdoyo.com/dashboard with the same email and code. Tap **Ask Doyo** to ask about
    bookings or have it build a chart.
-7. Worker side: in the menu, tap **Worker mode**, go online, and send an offer on the request that arrives.
+8. Worker side: in the menu, tap **Worker mode**, go online, and send an offer on the request that arrives.
 
 Demo mode: everyone is placed at G-10 Markaz, Islamabad. The four workers who bid (Ayesha, Bilal, Sana, Usman) are
 AI personas that stand in for real workers so a judge sees a live market; real workers use the same app's worker mode
@@ -48,8 +49,10 @@ and moves the money.
 a job card with a starting price and a **Never over** limit. It posts the job, and workers' offers arrive in the
 chat as cards with photo, rating, distance and price, plus the customer's own history with that worker ("You rated
 5★"). Doyo counters by name and books the best offer, weighing that history and what the customer paid last time. The
-customer can take over at any point to counter or accept, then hand back. Nothing is charged at booking: PayPal
-is charged the agreed price when the job is done.
+customer can take over at any point to counter or accept, then hand back. When the deal is struck, PayPal holds
+the agreed price; it is captured when the job is done and released if it's cancelled. If something was wrong, the
+customer says so in the chat: Doyo judges the complaint against what the job included and refunds the fair share
+through PayPal.
 
 **Worker.** In production every bid comes from a real worker. Requests arrive live. Accept the price or send your own. A counter shows on your card as
 "Customer offers PKR 450". Your share is paid to your PayPal when you complete the job.
@@ -76,20 +79,23 @@ assistant that answers questions and builds widgets on request.
 | Moment | PayPal |
 |---|---|
 | Customer links PayPal once | Vault: setup token → approval → payment token (Server SDK) |
-| Job completed | Orders: create and capture with the saved token (Server SDK) |
+| Doyo books a worker | Orders: AUTHORIZE with the saved token, so the agreed price is held (Server SDK) |
+| Job completed / cancelled | Payments: capture the authorization / void it (Server SDK) |
+| Customer complains | Payments: partial refund of the capture, amount decided by the agent (Server SDK) |
 | Worker paid | Payouts API, batch id = job id, so a job can't pay out twice |
 | Worker settles commission on cash jobs | Orders: create → approve → capture |
 
-Vault is what makes the agent useful: the customer approves PayPal once, and Doyo can book and settle later
-without another checkout, inside a limit the server enforces.
+Vault is what makes the agent useful: the customer approves PayPal once, and Doyo can hold, settle and refund
+later without another checkout, inside a limit the server enforces.
 
 ## How we used AI
 
-- It plans, negotiates, and explains every action in the chat.
+- It plans, negotiates, books, and settles disputes, and explains every action in the chat. The agent decides;
+  the customer's mandate bounds it.
 - It decides with the customer's history: how often they booked each worker, the stars they gave, and what they
   paid last time for the same job.
-- It is constrained in code, not just in the prompt. The server refuses any booking over the customer's limit,
-  and any booking more than 5% above the cheapest open offer; the refusal goes back to the agent, which
+- The mandate is enforced in code, not just in the prompt: no booking over the customer's limit or more than 5%
+  above the cheapest open offer, and no refund over half the price. A refusal goes back to the agent, which
   decides again. A turn limit, a daily call cap and a rule-based fallback keep bookings working.
 - It is cheap where it can be: small talk ("hi", "salam", "thanks") is answered without a model call, and the
   agent only calls the model when the offers have changed.
