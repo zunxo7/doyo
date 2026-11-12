@@ -29,11 +29,11 @@ const ago = (at: number) => {
 
 // The dashboard's own colours and type, so the grid reads like the other widgets.
 const gridTheme = themeQuartz.withParams({
-  backgroundColor: "#2e2e30",
+  backgroundColor: "transparent",
   foregroundColor: "#ffffff",
   accentColor: "#00baf0",
   borderColor: "#3d3e40",
-  headerBackgroundColor: "#2e2e30",
+  headerBackgroundColor: "transparent",
   headerTextColor: "rgba(255,255,255,0.62)",
   headerFontWeight: 700,
   fontFamily: "Montserrat, system-ui, sans-serif",
@@ -58,8 +58,7 @@ function Photo({ src, size }: { src: string | null; size: number }) {
 }
 
 function Decision({ review, onDone }: { review: Review; onDone: () => void }) {
-  const steps = [Math.round(review.maxRefund / 4), Math.round(review.maxRefund / 2), review.maxRefund];
-  const [amount, setAmount] = useState(review.suggested || steps[1]);
+  const [amount, setAmount] = useState(review.suggested || Math.round(review.maxRefund / 2));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [zoom, setZoom] = useState(false);
@@ -103,18 +102,19 @@ function Decision({ review, onDone }: { review: Review; onDone: () => void }) {
         <div className="rv-done">{review.decided.refund ? `${pkr(review.decided.refund)} refunded by PayPal` : "Closed with no refund"}</div>
       ) : (
         <>
-          <div className="rv-steps">
-            {steps.map(step => (
-              <button key={step} type="button" className={step === amount ? "on" : ""} onClick={() => setAmount(step)}>
-                {pkr(step)}
-              </button>
-            ))}
-          </div>
+          <label className="rv-amount">
+            <div>
+              <span>Refund</span>
+              <span>up to {pkr(review.maxRefund)}</span>
+            </div>
+            <b>{pkr(amount)}</b>
+            <input type="range" min={10} max={review.maxRefund} step={1} value={amount} onChange={event => setAmount(Number(event.target.value))} />
+          </label>
           <div className="rv-actions">
             <button className="btn" type="button" disabled={busy || !(amount > 0)} onClick={() => void decide(amount)}>
-              Refund {pkr(amount)}
+              Refund by PayPal
             </button>
-            <button className="ghost" type="button" disabled={busy} onClick={() => void decide(0)}>
+            <button className="rv-skip" type="button" disabled={busy} onClick={() => void decide(0)}>
               No refund
             </button>
           </div>
