@@ -42,8 +42,12 @@ The whole app runs in a demo mode so one person can walk both sides:
    limit when nobody bites, and books the best offer, weighing price against rating and arrival time. The
    customer can tap **Take over** and choose an offer themselves.
 4. **Job.** Live tracking on the map, in-app chat with the worker, a start code at the door.
-5. **Payment.** When the worker completes the job, PayPal is charged the agreed price and the worker is paid
-   out. The chat closes with a receipt: "PKR 950 paid with PayPal. Doyo saved you PKR 50."
+5. **Payment.** When Doyo books, PayPal holds the agreed price. When the worker completes the job, the hold is
+   captured and the worker is paid out. The chat closes with a receipt: "PKR 950 paid with PayPal. Doyo saved
+   you PKR 50."
+6. **Complaints.** If something was wrong, the customer says so in the chat. Doyo judges it against what the job
+   included and refunds the fair share through PayPal, up to half the price. With no photo, refunds rest on
+   trust: one automatic refund per customer a month; vague or repeat claims go to a person.
 
 ### Worker
 
@@ -65,7 +69,9 @@ All calls are in [`backend/src/paypal.ts`](backend/src/paypal.ts), using the
 | Step | API | When |
 |---|---|---|
 | Link PayPal once | Vault: `createSetupToken` → payer approves → `createPaymentToken` | Onboarding, or the first PayPal booking |
-| Charge the agreed price | Orders: `createOrder` with `payment_source.paypal.vault_id`, intent `CAPTURE` | The moment the job is completed. Nothing is charged at booking |
+| Hold the agreed price | Orders: `createOrder` with `payment_source.paypal.vault_id`, intent `AUTHORIZE` | The moment Doyo books. If PayPal refuses, the job is charged with intent `CAPTURE` on completion instead |
+| Charge or release it | Payments: `captureAuthorizedPayment` / `voidPayment` | Job completed / cancelled |
+| Refund a complaint | Payments: `refundCapturedPayment`, partial amount decided by the agent | After the job, from the chat |
 | Pay the worker | Payouts: `POST /v1/payments/payouts` | Right after the charge. `sender_batch_id` is the job id, so a job can only pay out once |
 | Worker settles cash commission | Orders: `createOrder` + `captureOrder` | From the worker's wallet, for jobs paid in cash |
 
