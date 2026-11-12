@@ -2,7 +2,7 @@ import { File, Paths } from "expo-file-system";
 import type { AgentPlan } from "./bidding";
 
 export type ChatItem =
-  | { id: number; kind: "me" | "doyo" | "agent"; text: string }
+  | { id: number; kind: "me" | "doyo" | "agent"; text: string; photo?: string }
   | { id: number; kind: "worker"; text: string; name?: string; avatar?: "male" | "female"; workerId?: string; price?: number; rating?: string; jobs?: string; minutesAway?: number; bookedBefore?: number; lastStars?: number | null }
   | { id: number; kind: "plan" };
 export type ChatDraft = {

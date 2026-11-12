@@ -450,8 +450,8 @@ export async function raiseJobPrice(jobId: string, _customerId: string, price: n
 
 export type ChatLine = { from: "customer" | "doyo"; text: string };
 
-export function planAgentRequest(text: string, plan: AgentPlan | null, recent: ChatLine[] = [], usualPrice?: number): Promise<AgentPlan> {
-  return sendJson<AgentPlan>("POST", "/api/agent/plan", { text, plan, recent, usualPrice });
+export function planAgentRequest(text: string, plan: AgentPlan | null, recent: ChatLine[] = [], usualPrice?: number, photo?: string): Promise<AgentPlan> {
+  return sendJson<AgentPlan>("POST", "/api/agent/plan", { text, plan, recent, usualPrice, photo });
 }
 
 export async function stopJobAgent(jobId: string): Promise<void> {

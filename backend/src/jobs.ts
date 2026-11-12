@@ -82,7 +82,7 @@ export type Job = {
   paypalHold: { id: string; amount: number } | null;
   counters?: Record<string, number>;
   paymentStatus?: "paid" | "failed";
-  refund?: { amount: number; reason: string; at: number };
+  refund?: { amount: number; reason: string; at: number; photo?: boolean };
   // A complaint the agent did not settle itself, waiting for a person.
   review?: { text: string; at: number };
 };
@@ -691,9 +691,9 @@ export function recordReview(jobId: string, text: string): void {
 }
 
 /** A refund comes back out of the worker's share, so it is owed like commission. */
-export function recordRefund(jobId: string, amount: number, reason: string): void {
+export function recordRefund(jobId: string, amount: number, reason: string, photo = false): void {
   const job = getJob(jobId);
-  job.refund = { amount, reason, at: Date.now() };
+  job.refund = { amount, reason, at: Date.now(), photo };
   saveJob(job);
   broadcast(job);
   const ledger = ledgerOf(job.acceptedWorkerId!);

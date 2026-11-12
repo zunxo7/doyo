@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Keyboard, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Image, Keyboard, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import Reanimated, {
   Easing,
   FadeIn,
@@ -13,7 +15,7 @@ import Reanimated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CaretDown, List, MapPin, NotePencil, PaperPlaneRight, SquaresFour, Star, UserCircle } from "phosphor-react-native";
+import { Camera, CaretDown, List, MapPin, NotePencil, PaperPlaneRight, SquaresFour, Star, UserCircle, X } from "phosphor-react-native";
 import AppIcon from "./AppIcon";
 import ChatServicesSheet from "./ChatServicesSheet";
 import PayPalCheckout from "./PayPalCheckout";
@@ -198,6 +200,8 @@ export default function AgentChat({
   const shown = useSharedValue(visible ? 1 : 0);
   const scrollRef = useRef<ScrollView>(null);
   const inputRef = useRef<TextInput>(null);
+  // A photo attached to the next message, sent as evidence with a complaint about a finished job.
+  const [photo, setPhoto] = useState<{ uri: string; base64: string } | null>(null);
 
   const price = useMemo(() => {
     if (!plan) return { ask: 0, limit: 0 };
@@ -218,7 +222,15 @@ export default function AgentChat({
     saveChat(items.length || request ? { items, plan, payment, request } : null);
   }, [items, plan, payment, request]);
 
-  const say = (kind: "me" | "doyo", line: string) => setItems(current => [...current, { id: nextId.current++, kind, text: line }]);
+  const say = (kind: "me" | "doyo", line: string, photoUri?: string) =>
+    setItems(current => [...current, { id: nextId.current++, kind, text: line, ...(photoUri ? { photo: photoUri } : {}) }]);
+
+  const pickPhoto = async () => {
+    const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 1 });
+    if (picked.canceled || !picked.assets[0]) return;
+    const shrunk = await manipulateAsync(picked.assets[0].uri, [{ resize: { width: 1024 } }], { compress: 0.7, format: SaveFormat.JPEG, base64: true });
+    if (shrunk.base64) setPhoto({ uri: shrunk.uri, base64: shrunk.base64 });
+  };
 
   useEffect(() => {
     const show = Keyboard.addListener("keyboardDidShow", event => setKeyboardHeight(event.endCoordinates.height));
@@ -300,18 +312,20 @@ export default function AgentChat({
   };
 
   const send = async (line: string) => {
-    const message = line.trim();
+    const attached = photo;
+    const message = line.trim() || (attached ? t("Here's a photo.") : "");
     if (!message || thinking || !canType) return;
     setText("");
+    setPhoto(null);
     // The planner reads the message in context: the chat so far and what the current job usually costs.
     const recent = items
       .filter((item): item is ChatItem & { text: string } => item.kind === "me" || item.kind === "doyo")
       .slice(-6)
       .map(item => ({ from: item.kind === "me" ? ("customer" as const) : ("doyo" as const), text: item.text }));
-    say("me", message);
+    say("me", message, attached?.uri);
     setThinking(true);
     try {
-      const next = await planAgentRequest(message, plan, recent, plan ? quote(plan, pricing) || undefined : undefined);
+      const next = await planAgentRequest(message, plan, recent, plan ? quote(plan, pricing) || undefined : undefined, attached?.base64);
       if (next.cancel) {
         await dropRequest();
         setPlan(null);
@@ -563,6 +577,7 @@ export default function AgentChat({
           if (item.kind === "me") {
             return (
               <Reanimated.View key={item.id} entering={FadeInDown.duration(220)} style={s.meBubble}>
+                {item.photo ? <Image source={{ uri: item.photo }} style={{ width: 200, height: 200, borderRadius: 14, marginBottom: 8 }} /> : null}
                 <Text style={[s.meText, fontStyles.medium]}>{item.text}</Text>
               </Reanimated.View>
             );
@@ -700,11 +715,31 @@ export default function AgentChat({
         </ScrollView>
       ) : null}
 
+      {canType && photo ? (
+        <View style={{ flexDirection: "row", paddingHorizontal: 16, paddingBottom: 8 }}>
+          <View>
+            <Image source={{ uri: photo.uri }} style={{ width: 72, height: 72, borderRadius: 12 }} />
+            <TouchableOpacity
+              accessibilityLabel={t("Remove photo")}
+              onPress={() => setPhoto(null)}
+              style={{ position: "absolute", top: -6, right: -6, width: 24, height: 24, borderRadius: 12, backgroundColor: colors.navy, alignItems: "center", justifyContent: "center" }}
+            >
+              <X size={14} color={colors.white} weight="bold" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : null}
+
       {canType ? (
         <View style={s.composer}>
           <TouchableOpacity style={s.toolButton} activeOpacity={0.85} accessibilityLabel={t("All services")} onPress={() => setServicesOpen(true)}>
             <SquaresFour size={20} color={colors.white} weight="fill" />
           </TouchableOpacity>
+          {!request && !plan ? (
+            <TouchableOpacity style={s.toolButton} activeOpacity={0.85} accessibilityLabel={t("Attach a photo")} onPress={() => void pickPhoto()}>
+              <Camera size={20} color={colors.white} weight="fill" />
+            </TouchableOpacity>
+          ) : null}
           <TextInput
             ref={inputRef}
             style={[s.input, fontStyles.medium]}
@@ -716,9 +751,9 @@ export default function AgentChat({
             multiline
           />
           <TouchableOpacity
-            style={[s.sendButton, (!text.trim() || thinking) && s.sendDisabled]}
+            style={[s.sendButton, ((!text.trim() && !photo) || thinking) && s.sendDisabled]}
             activeOpacity={0.85}
-            disabled={!text.trim() || thinking}
+            disabled={(!text.trim() && !photo) || thinking}
             onPress={() => void send(text)}
           >
             <PaperPlaneRight size={20} color="#ffffff" weight="fill" />

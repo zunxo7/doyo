@@ -282,16 +282,19 @@ app.post("/api/ops/llm", { bodyLimit: 2_000_000 }, async req => {
   return runTurn(req.body as TurnRequest);
 });
 
-app.post("/api/agent/plan", async req => {
+// A complaint may carry a photo, so this route takes a larger body than the default.
+app.post("/api/agent/plan", { bodyLimit: 4_000_000 }, async req => {
   const userId = actor(req);
-  const { text, plan, recent, usualPrice } = z
+  const { text, plan, recent, usualPrice, photo } = z
     .object({
       text: z.string().trim().min(1).max(300),
       plan: z.record(z.string(), z.unknown()).nullish(),
       recent: z.array(z.object({ from: z.enum(["customer", "doyo"]), text: z.string().max(400) })).max(8).optional(),
       usualPrice: z.number().int().positive().max(10_000_000).optional(),
+      photo: z.string().max(3_000_000).optional(),
     })
     .parse(req.body);
+  if (photo) return (await handleComplaint(userId, text, photo)) ?? { understood: false, cancel: false, question: "Thanks for the photo. Is something wrong with your last job? Tell me what happened.", reply: "" };
   const quick = quickReply(text, Boolean(plan));
   if (quick) return quick;
   // With no new request in progress, a message may be about the job that just finished; both are read at once.
