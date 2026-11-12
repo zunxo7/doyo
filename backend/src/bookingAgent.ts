@@ -97,12 +97,14 @@ function offersKey(jobId: string): string {
   return `${jobs.getJob(jobId).price}|${offers.join(",")}`;
 }
 
-async function awaitReply(jobId: string, workerId: string): Promise<void> {
+/** Waits for a person to answer a counter; true if they did. */
+async function awaitReply(jobId: string, workerId: string): Promise<boolean> {
   const deadline = Date.now() + HUMAN_REPLY_WAIT_MS;
   while (Date.now() < deadline && isRunning(jobId)) {
-    if (jobs.pendingOffers(jobId).some(offer => offer.workerId === workerId)) return;
+    if (jobs.pendingOffers(jobId).some(offer => offer.workerId === workerId)) return true;
     await wait(1000);
   }
+  return false;
 }
 
 async function perform(jobId: string, { name, input }: Call): Promise<string> {
@@ -126,8 +128,9 @@ async function perform(jobId: string, { name, input }: Call): Promise<string> {
       jobs.updateAgent(jobId, {}, note);
       jobs.declineOffer(jobId, offer.id, job.customerId, price);
       if (!offer.workerId.startsWith("sim-")) {
-        await awaitReply(jobId, offer.workerId);
-        return market(jobId);
+        if (await awaitReply(jobId, offer.workerId)) return market(jobId);
+        jobs.restoreOffer(jobId, offer.id);
+        return `${offer.name} did not answer the counter, so their offer of PKR ${offer.price} stands. ${market(jobId)}`;
       }
       break;
     case "raise_price":

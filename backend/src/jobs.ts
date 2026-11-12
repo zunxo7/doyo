@@ -288,6 +288,20 @@ export function submitOffer(jobId: string, input: OfferInput): Offer {
   return offer;
 }
 
+/** A worker who never answered a counter still stands by their own price. */
+export function restoreOffer(jobId: string, offerId: string): void {
+  const job = getJob(jobId);
+  const offer = getOffer(job, offerId);
+  if (job.status !== "open" || offer.status !== "declined") return;
+  if (offersFor(job.id).some(other => other.workerId === offer.workerId && other.status === "pending")) return;
+  offer.status = "pending";
+  store.put("offers", offer);
+  job.counters = { ...job.counters };
+  delete job.counters[offer.workerId];
+  saveJob(job);
+  broadcast(job);
+}
+
 export function declineOffer(jobId: string, offerId: string, customerId: string, counter?: number): void {
   const job = getJob(jobId);
   assertCustomer(job, customerId);
