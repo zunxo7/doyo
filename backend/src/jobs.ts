@@ -83,6 +83,8 @@ export type Job = {
   counters?: Record<string, number>;
   paymentStatus?: "paid" | "failed";
   refund?: { amount: number; reason: string; at: number };
+  // A complaint the agent did not settle itself, waiting for a person.
+  review?: { text: string; at: number };
 };
 
 export type Offer = {
@@ -672,10 +674,20 @@ export function recentPaidJob(customerId: string, withinMs: number): Job | null 
   return (
     store
       .list<Job>("jobs")
-      .filter(job => job.customerId === customerId && job.status === "completed" && job.paymentStatus === "paid" && !job.refund)
+      .filter(job => job.customerId === customerId && job.status === "completed" && job.paymentStatus === "paid" && !job.refund && !job.review)
       .filter(job => now - (job.endedAt ?? 0) < withinMs)
       .sort((a, b) => (b.endedAt ?? 0) - (a.endedAt ?? 0))[0] ?? null
   );
+}
+
+/** How many refunds the customer received since a time. */
+export const refundsSince = (customerId: string, since: number) =>
+  store.list<Job>("jobs").filter(job => job.customerId === customerId && job.refund && job.refund.at >= since).length;
+
+export function recordReview(jobId: string, text: string): void {
+  const job = getJob(jobId);
+  job.review = { text, at: Date.now() };
+  saveJob(job);
 }
 
 /** A refund comes back out of the worker's share, so it is owed like commission. */
