@@ -19,6 +19,7 @@ interface SettingsContextValue {
   setNotificationsEnabled: (enabled: boolean) => void;
   setDefaultPayment: (payment: PaymentPref) => void;
   setActiveReward: (reward: ActiveReward | null) => void;
+  setDemoWorkers: (enabled: boolean) => void;
   /**
    * Translate an English source string to the active language. Supports
    * `{token}` interpolation, e.g. t("PKR{price}", { price: 700 }).
@@ -56,6 +57,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       setNotificationsEnabled: notificationsEnabled => persist({ notificationsEnabled }),
       setDefaultPayment: defaultPayment => persist({ defaultPayment }),
       setActiveReward: activeReward => persist({ activeReward }),
+      setDemoWorkers: demoWorkers => persist({ demoWorkers }),
       t: (key, params) => {
         let result = dict[key] ?? key;
         if (params) {

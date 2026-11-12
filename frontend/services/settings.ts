@@ -21,6 +21,8 @@ export interface AppSettings {
   notificationsEnabled: boolean;
   defaultPayment: PaymentPref;
   activeReward: ActiveReward | null;
+  // AI personas bid alongside real workers so a lone tester sees a live market. Off: only real workers bid.
+  demoWorkers: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -29,6 +31,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   notificationsEnabled: true,
   defaultPayment: "PayPal",
   activeReward: null,
+  demoWorkers: true,
 };
 
 const PAYMENT_PREFS: PaymentPref[] = ["PayPal", "Cash"];
@@ -43,6 +46,7 @@ export async function getSettings(): Promise<AppSettings> {
       notificationsEnabled: saved.notificationsEnabled !== false,
       defaultPayment: PAYMENT_PREFS.find(payment => payment === saved.defaultPayment) ?? "PayPal",
       activeReward: saved.activeReward ?? null,
+      demoWorkers: saved.demoWorkers !== false,
     };
   } catch {
     return DEFAULT_SETTINGS;

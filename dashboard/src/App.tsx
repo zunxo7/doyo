@@ -5,6 +5,7 @@ import { claudeAdapter } from "./adapter";
 import { call, getToken, setToken, signIn, watch, type Overview } from "./api";
 import { getOverview, serviceName, statusName, toSources } from "./data";
 import { MY_CHARTS, PAGES, REPORT } from "./report";
+import { Reviews } from "./Reviews";
 
 type Spot = { xTrack: number; yTrack: number; xSpan: number; ySpan: number };
 type Page = { id: string; widgets?: Record<string, unknown>; widgetLayout?: Record<string, Spot> };
@@ -456,10 +457,15 @@ export default function App() {
   const [editing, setEditing] = useState(false);
   const studio = useRef<AgStudioRef>(null);
   const initial = useMemo(withSavedCharts, []);
+  // Reviews is our own page beside the AG Studio ones; the studio stays mounted underneath it.
+  const [reviewing, setReviewing] = useState(false);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [tick, setTick] = useState(0);
 
   const load = useCallback(async () => {
     try {
       setData(toSources(await call<Overview>("/api/ops/overview")));
+      setTick(value => value + 1);
     } catch (problem) {
       // Only a refused session signs out; a dropped connection just waits for the next update.
       const status = (problem as { status?: number }).status;
@@ -480,6 +486,7 @@ export default function App() {
   );
 
   const open = (next: string) => {
+    setReviewing(false);
     setPage(next);
     const api = studio.current?.api;
     if (api) api.setState({ ...api.getState(), selectedPageId: next });
@@ -496,10 +503,13 @@ export default function App() {
         </a>
         <nav className="tabs" aria-label="Pages">
           {PAGES.map(name => (
-            <button key={name} type="button" className={name === page ? "tab active" : "tab"} onClick={() => open(name)}>
+            <button key={name} type="button" className={name === page && !reviewing ? "tab active" : "tab"} onClick={() => open(name)}>
               {name}
             </button>
           ))}
+          <button type="button" className={reviewing ? "tab active" : "tab"} onClick={() => setReviewing(true)}>
+            Reviews{reviewCount ? <span className="badge">{reviewCount}</span> : null}
+          </button>
         </nav>
         <span className="spacer" />
         <span className={live ? "live on" : "live"}>
@@ -523,7 +533,8 @@ export default function App() {
           Sign out
         </button>
       </header>
-      <div className="studio">
+      {reviewing ? <Reviews tick={tick} onCount={setReviewCount} /> : null}
+      <div className="studio" style={reviewing ? { display: "none" } : undefined}>
         {data ? (
           <AgStudioProvider licenseKey={LICENCE} modules={modules}>
             <AgStudio

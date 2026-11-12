@@ -85,8 +85,17 @@ export type Job = {
   counters?: Record<string, number>;
   paymentStatus?: "paid" | "failed";
   refund?: { amount: number; reason: string; at: number; photo?: boolean };
-  // A complaint the agent did not settle itself, waiting for a person.
-  review?: { text: string; at: number };
+  // A complaint the agent did not settle itself, waiting for a person. The photo is stored apart, under the job id.
+  review?: {
+    text: string;
+    at: number;
+    note: string;
+    photo: boolean;
+    suggested: number;
+    decided?: { refund: number; at: number; by: string };
+  };
+  // False for a request only real workers may bid on.
+  simulatedWorkers?: boolean;
 };
 
 export type Offer = {
@@ -190,7 +199,10 @@ function assertAssignedWorker(job: Job, userId: string): void {
 }
 
 export type CreateJob = Pick<Job, "service" | "detail" | "address" | "coordinates" | "price" | "payment" | "workerPreference"> &
-  Partial<Pick<Job, "customerName" | "customerPhoto" | "city" | "notes" | "details" | "rewardId">> & { agentBudget?: number; paypalHold?: Job["paypalHold"] };
+  Partial<Pick<Job, "customerName" | "customerPhoto" | "city" | "notes" | "details" | "rewardId" | "simulatedWorkers">> & {
+    agentBudget?: number;
+    paypalHold?: Job["paypalHold"];
+  };
 
 export const liveJobOf = (customerId: string) =>
   store.list<Job>("jobs").find(job => job.customerId === customerId && ["open", "assigned", "in_progress"].includes(job.status));
@@ -235,6 +247,7 @@ export function createJob(customerId: string, input: CreateJob) {
     chat: [],
     agent: input.agentBudget === undefined ? null : { status: "working", budget: input.agentBudget, offerId: null, log: [] },
     paypalHold: input.paypalHold ?? null,
+    ...(input.simulatedWorkers === false ? { simulatedWorkers: false } : {}),
   });
   publishMarket();
   events.emit("job:created", job);
@@ -688,10 +701,23 @@ export function recentPaidJob(customerId: string, withinMs: number): Job | null 
 export const refundsSince = (customerId: string, since: number) =>
   store.list<Job>("jobs").filter(job => job.customerId === customerId && job.refund && job.refund.at >= since).length;
 
-export function recordReview(jobId: string, text: string): void {
+export function recordReview(jobId: string, text: string, note: string, suggested: number, photo?: string): void {
   const job = getJob(jobId);
-  job.review = { text, at: Date.now() };
+  if (photo) store.put("reviewPhotos", { id: jobId, data: photo });
+  job.review = { text, at: Date.now(), note, photo: Boolean(photo), suggested };
   saveJob(job);
+  broadcast(job);
+}
+
+export const reviewPhoto = (jobId: string) => store.get<{ id: string; data: string }>("reviewPhotos", jobId)?.data ?? null;
+
+/** Records a person's decision on a complaint the agent sent to review. */
+export function decideReview(jobId: string, refund: number, by: string): void {
+  const job = getJob(jobId);
+  if (!job.review || job.review.decided) throw new HttpError(409, "This complaint is already settled.");
+  job.review.decided = { refund, at: Date.now(), by };
+  saveJob(job);
+  broadcast(job);
 }
 
 /** A refund comes back out of the worker's share, so it is owed like commission. */

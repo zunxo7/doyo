@@ -255,11 +255,12 @@ async function createCustomerJob(worker: Presence, customerId: string): Promise<
 
 export function startAgents(): void {
   jobs.events.on("job:created", (job: Job) => {
-    if (!isSimCustomer(job.customerId)) void runBidding(job).catch(console.warn);
+    if (!isSimCustomer(job.customerId) && job.simulatedWorkers !== false) void runBidding(job).catch(console.warn);
     if (job.agent) void runBookingAgent(job.id).catch(console.warn);
   });
 
   jobs.events.on("job:price", (job: Job) => {
+    if (job.simulatedWorkers === false) return;
     for (const persona of eligible(job).slice(0, 3)) void placeBid(persona, job.id).catch(console.warn);
   });
 

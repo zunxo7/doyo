@@ -380,6 +380,7 @@ export default function AgentChat({
         workerPreference: plan.workerPreference,
         details,
         agentBudget: price.limit,
+        simulatedWorkers: settings.demoWorkers,
       });
       const next = { jobId: created.job.id, customerId };
       setRequest(next);

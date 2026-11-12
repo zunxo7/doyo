@@ -57,6 +57,7 @@ const jobBody = z.object({
   rewardId: z.string().optional(),
   agentBudget: z.number().optional(),
   paypalHoldId: z.string().optional(),
+  simulatedWorkers: z.boolean().optional(),
 });
 const offerBody = z.object({
   workerName: z.string(),
@@ -275,6 +276,52 @@ app.post("/api/demo/worker", async req => {
 app.get("/api/ops/overview", async req => {
   if (!ops.isAdmin(actor(req))) throw new HttpError(403, "Sign in with a demo account to open the dashboard.");
   return ops.overview();
+});
+
+const assertAdmin = (userId: string) => {
+  if (!ops.isAdmin(userId)) throw new HttpError(403, "Sign in with a demo account to open the dashboard.");
+};
+
+// Complaints the agent sent to a person, newest first, with the photo the customer sent.
+app.get("/api/ops/reviews", async req => {
+  assertAdmin(actor(req));
+  return {
+    reviews: store
+      .list<jobs.Job>("jobs")
+      .filter(job => job.review)
+      .sort((a, b) => b.review!.at - a.review!.at)
+      .map(job => {
+        const price = job.acceptedPrice ?? job.price;
+        const photo = job.review!.photo ? jobs.reviewPhoto(job.id) : null;
+        return {
+          jobId: job.id,
+          customer: job.customerName,
+          worker: store.list<jobs.Offer>("offers").find(offer => offer.jobId === job.id && offer.status === "accepted")?.name ?? null,
+          service: job.service,
+          detail: job.detail,
+          price,
+          maxRefund: Math.floor(price * 0.5),
+          ...job.review!,
+          photo: photo ? `data:image/jpeg;base64,${photo}` : null,
+        };
+      }),
+  };
+});
+
+app.post("/api/ops/reviews/:id", async (req: FastifyRequest<IdParams>) => {
+  const userId = actor(req);
+  assertAdmin(userId);
+  const { refund } = z.object({ refund: z.number().int().min(0) }).parse(req.body);
+  const job = jobs.getJob(req.params.id);
+  if (!job.review || job.review.decided) throw new HttpError(409, "This complaint is already settled.");
+  const price = job.acceptedPrice ?? job.price;
+  if (refund > Math.floor(price * 0.5)) throw new HttpError(400, "A refund can be at most half the price.");
+  if (refund > 0) {
+    await paypal.refundJob(job, refund, "Doyo refund after review");
+    jobs.recordRefund(job.id, refund, `Reviewed: ${job.review.note}`, job.review.photo);
+  }
+  jobs.decideReview(job.id, refund, userId);
+  return { ok: true };
 });
 
 app.post("/api/ops/llm", { bodyLimit: 2_000_000 }, async req => {

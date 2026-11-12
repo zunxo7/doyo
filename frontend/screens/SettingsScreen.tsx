@@ -16,7 +16,7 @@ import Reanimated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { ArrowCounterClockwise, ArrowLeft, Bell, MoneyWavy, Moon, PaypalLogo, SignOut, Translate, Trash } from "phosphor-react-native";
+import { ArrowCounterClockwise, ArrowLeft, Bell, MoneyWavy, Moon, PaypalLogo, Robot, SignOut, Translate, Trash } from "phosphor-react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import ScreenBackground from "../components/ScreenBackground";
 import FadeInView from "../components/FadeInView";
@@ -82,7 +82,7 @@ export default function SettingsScreen({ navigation }: Props) {
   const fonts = useFontFamilies();
   const colors = useColors();
   const s = useThemedStyles(makeSettingsStyles);
-  const { settings, setTheme, setDefaultPayment, t } = useSettings();
+  const { settings, setTheme, setDefaultPayment, setDemoWorkers, t } = useSettings();
 
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -217,6 +217,18 @@ export default function SettingsScreen({ navigation }: Props) {
                 <Text style={[s.optionSub, fontStyles.medium]}>{t("Job updates and offer alerts")}</Text>
               </View>
               <Toggle value={notificationsOn} onValueChange={value => void handleNotificationsToggle(value)} />
+            </View>
+            <View style={s.optionRow}>
+              <View style={s.optionIconWrap}>
+                <Robot size={20} color={colors.accent} weight="fill" />
+              </View>
+              <View style={s.optionTextBlock}>
+                <Text style={[s.optionLabel, fontStyles.semiBold]}>{t("AI demo workers")}</Text>
+                <Text style={[s.optionSub, fontStyles.medium]}>
+                  {settings.demoWorkers ? t("AI bidders join every request, for the demo") : t("Off: only real workers in worker mode bid")}
+                </Text>
+              </View>
+              <Toggle value={settings.demoWorkers} onValueChange={setDemoWorkers} />
             </View>
           </View>
         </FadeInView>

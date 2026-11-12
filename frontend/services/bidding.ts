@@ -148,6 +148,7 @@ export type CreateJobInput = {
   rewardId?: string;
   agentBudget?: number;
   paypalHoldId?: string;
+  simulatedWorkers?: boolean;
 };
 
 export type WorkerOfferInput = {
