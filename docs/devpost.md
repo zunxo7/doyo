@@ -8,7 +8,7 @@ Doyo
 
 ## Tagline
 
-Tell Doyo what you need. It negotiates with workers, books within your limit, and pays them through PayPal.
+Agentic commerce for home services: tell Doyo what you need, and it negotiates with workers, books within your limit, and pays them through PayPal.
 
 ## Links
 
@@ -33,7 +33,7 @@ Demo mode: everyone is placed at G-10 Markaz, Islamabad. The four workers who bi
 
 ## Inspiration
 
-In Pakistan you book a cleaner, a car wash or a barber by phoning around and haggling, then pay in cash. Ride-hailing apps here already let people bid on a fare, so negotiating in an app is familiar. Nobody enjoys doing the negotiating. That is a job for an agent that holds a budget, talks to the other side, closes the deal and moves the money.
+In Pakistan you book a cleaner, a car wash or a barber by phoning around and haggling, then pay in cash. Ride-hailing apps here already let people bid on a fare, so negotiating in an app is familiar. Nobody enjoys doing the negotiating. That is agentic commerce: an agent that holds the customer's budget, talks to the other side, closes the deal and moves the money through PayPal, inside limits the customer sets.
 
 ## What it does
 
@@ -67,7 +67,7 @@ Vault is what makes the agent useful: the customer approves PayPal once, and Doy
 
 ## How we used AI
 
-- It plans, negotiates, books, and settles disputes, and explains every action in the chat. The agent decides; the customer's mandate bounds it.
+- It is agentic commerce end to end: it plans, negotiates, books, pays and settles disputes, and explains every action in the chat. The agent decides; the customer's mandate (budget, price rule, refund cap) bounds it, enforced on the server like the mandates in Google's AP2 and Visa Intelligent Commerce.
 - It decides with the customer's history: how often they booked each worker, the stars they gave, and what they paid last time for the same job.
 - The mandate is enforced in code, not just in the prompt: no booking over the customer's limit or more than 5% above the cheapest open offer, no refund over half the price, and one automatic refund per customer a month. A refusal goes back to the agent, which decides again. A turn limit, a daily call cap and a rule-based fallback keep bookings working.
 - It is cheap where it can be: small talk ("hi", "salam", "thanks") is answered without a model call, and the agent only calls the model when the offers have changed.
