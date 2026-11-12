@@ -200,7 +200,21 @@ function ruleCall(jobId: string, turn: number, countered: Set<string>): Call {
   return { name: "wait_for_offers", input: { note: "Those offers are over your budget, so I'm waiting." } };
 }
 
+// Jobs with a negotiation loop running. A loop paused by Take over is still running while it waits,
+// so Let Doyo lets it carry on instead of starting a second agent on the same job.
+const runningLoops = new Set<string>();
+
 export async function runBookingAgent(jobId: string, resumed = false): Promise<void> {
+  if (runningLoops.has(jobId)) return;
+  runningLoops.add(jobId);
+  try {
+    await negotiate(jobId, resumed);
+  } finally {
+    runningLoops.delete(jobId);
+  }
+}
+
+async function negotiate(jobId: string, resumed: boolean): Promise<void> {
   const job = jobs.getJob(jobId);
   const brief = { service: job.service, detail: job.detail, worker_preference: job.workerPreference };
   const countered = new Set<string>();
@@ -209,7 +223,8 @@ export async function runBookingAgent(jobId: string, resumed = false): Promise<v
 
   if (!resumed) jobs.updateAgent(jobId, {}, "On it. Asking workers near you.");
   // The first move is always to wait for bids, so it is made without asking the model.
-  const opening = await execute(jobId, { name: "wait_for_offers", input: {} });
+  // Handed back after Take over, the offers are already in: decide straight away.
+  const opening = resumed ? market(jobId) : await execute(jobId, { name: "wait_for_offers", input: {} });
   const messages: Anthropic.MessageParam[] = [
     { role: "user", content: `<job>${JSON.stringify(brief)}</job>\nYou waited for the first bids. Current market: ${opening}\nDecide your next step.` },
   ];
@@ -275,6 +290,7 @@ const PLAN_SYSTEM = [
   "question or explanation in question; otherwise leave question empty.",
   "reply is one short, warm line saying what you set up or changed, without prices.",
   "If <current_plan> is present, apply the message as a change to it and keep every other field.",
+  "Never state a price or a price range unless it is given in <usual_price>; Doyo quotes prices itself.",
   "<conversation> is the chat so far and <usual_price> the typical starting price for the current plan, in PKR;",
   "Doyo negotiates, so workers often settle somewhat below it.",
   "Read the message the way the customer meant it in that context, and use your judgement. If a change would not work,",

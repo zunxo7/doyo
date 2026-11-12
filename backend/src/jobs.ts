@@ -293,7 +293,8 @@ export function updateAgent(
   const job = getJob(jobId);
   if (!job.agent) return;
   Object.assign(job.agent, patch);
-  if (note && job.agent.log.at(-1)?.text !== note) {
+  // A line that carries an offer is always kept: two workers may say the same words.
+  if (note && (worker?.price != null || job.agent.log.at(-1)?.text !== note)) {
     const offer = worker?.price != null && worker.id ? worker : null;
     job.agent.log.push({
       text: note,

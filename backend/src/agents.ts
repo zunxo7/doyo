@@ -45,7 +45,12 @@ function scopeOf(job: Job): string[] {
   const pages = SERVICE_SCOPE[job.service as keyof typeof SERVICE_SCOPE] ?? [];
   const level = job.details?.cleaningType ?? (/deep/i.test(job.detail) ? "Deep" : "Regular");
   const chosen = job.service === "home" ? pages.filter(page => page.label === level) : pages;
-  return chosen.flatMap(page => page.items.filter(item => !item.excluded).map(item => `${item.area}: ${item.method}`));
+  // A barber job covers only what was booked: a haircut alone does not include the beard.
+  const count = (key: string) => Number(job.details?.[key] ?? 0);
+  const booked = (area: string) =>
+    job.service !== "barber" ||
+    (area === "Haircut" ? count("haircuts") + count("haircutAndBeards") > 0 : area === "Beard" ? count("beards") + count("haircutAndBeards") > 0 : true);
+  return chosen.flatMap(page => page.items.filter(item => !item.excluded && booked(item.area)).map(item => `${item.area}: ${item.method}`));
 }
 
 // The offer card beside the line already shows the price, rating, jobs done and distance.

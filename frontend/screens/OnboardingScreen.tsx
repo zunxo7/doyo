@@ -139,7 +139,8 @@ export default function OnboardingScreen({ navigation }: Props) {
       const user = await signInWithGoogle();
       const lookup = await findAccountByAuth(user.email, user.uid);
       if (!lookup.found || !lookup.account) {
-        navigation.navigate("PhoneNumber", user);
+        // Like email sign-in: no phone step, which only accepts Pakistani numbers.
+        navigation.navigate("Role", { uid: user.uid, email: user.email, name: user.name, phone: "" });
         return;
       }
       const account = lookup.account;
