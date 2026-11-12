@@ -82,6 +82,7 @@ export type Job = {
   paypalHold: { id: string; amount: number } | null;
   counters?: Record<string, number>;
   paymentStatus?: "paid" | "failed";
+  refund?: { amount: number; reason: string; at: number };
 };
 
 export type Offer = {
@@ -663,6 +664,30 @@ export function setPaymentStatus(jobId: string, paymentStatus: Job["paymentStatu
 export function workerShare(job: Job): number {
   const price = job.acceptedPrice ?? job.price;
   return price - Math.round(price * COMMISSION_RATE);
+}
+
+/** The customer's latest PayPal-paid job, while a complaint about it is still timely and none was settled. */
+export function recentPaidJob(customerId: string, withinMs: number): Job | null {
+  const now = Date.now();
+  return (
+    store
+      .list<Job>("jobs")
+      .filter(job => job.customerId === customerId && job.status === "completed" && job.paymentStatus === "paid" && !job.refund)
+      .filter(job => now - (job.endedAt ?? 0) < withinMs)
+      .sort((a, b) => (b.endedAt ?? 0) - (a.endedAt ?? 0))[0] ?? null
+  );
+}
+
+/** A refund comes back out of the worker's share, so it is owed like commission. */
+export function recordRefund(jobId: string, amount: number, reason: string): void {
+  const job = getJob(jobId);
+  job.refund = { amount, reason, at: Date.now() };
+  saveJob(job);
+  broadcast(job);
+  const ledger = ledgerOf(job.acceptedWorkerId!);
+  ledger.commissionDue += amount;
+  ledger.transactions.push({ id: newId("ltx"), label: "Refund to customer", sub: job.detail, at: Date.now(), amount: -amount, type: "commission" });
+  store.put("ledgers", ledger);
 }
 
 export function recordPayout(workerId: string, amount: number, detail: string): void {

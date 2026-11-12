@@ -19,11 +19,11 @@ export function spendCall(): boolean {
 
 export const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms / SIM_SPEED));
 
-export async function askJson<T>(system: string, prompt: string, schema: object, fallback: T): Promise<T> {
+export async function askJson<T>(system: string, prompt: string, schema: object, fallback: T, model = WORKER_MODEL): Promise<T> {
   if (!client || !spendCall()) return fallback;
   try {
     const message = await client.messages.create({
-      model: WORKER_MODEL,
+      model,
       max_tokens: 2000,
       output_config: { effort: "low", format: { type: "json_schema", schema: schema as Record<string, unknown> } },
       system,

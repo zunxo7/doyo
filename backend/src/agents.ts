@@ -41,7 +41,7 @@ const roundPrice = (price: number) => Math.round(price / 10) * 10;
  * What this job includes, from the scope customers and workers see, so a worker's line only says true
  * things. A home clean gets only its own level: a regular clean is floors, not windows.
  */
-function scopeOf(job: Job): string[] {
+export function scopeOf(job: Job): string[] {
   const pages = SERVICE_SCOPE[job.service as keyof typeof SERVICE_SCOPE] ?? [];
   const level = job.details?.cleaningType ?? (/deep/i.test(job.detail) ? "Deep" : "Regular");
   const chosen = job.service === "home" ? pages.filter(page => page.label === level) : pages;

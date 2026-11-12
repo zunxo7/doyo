@@ -330,6 +330,21 @@ async function chargeSaved(job: jobs.Job): Promise<void> {
   await payWorker(job, payment);
 }
 
+/** Refunds part of a job's PayPal charge to the customer. */
+export async function refundJob(job: jobs.Job, amount: number, note: string): Promise<string> {
+  const payment = store.list<Payment>("payments").find(item => item.jobId === job.id && item.captureId && item.status === "captured");
+  if (!payment?.captureId) throw new Error("no captured PayPal payment for this job");
+  const { result } = await payments.refundCapturedPayment({
+    captureId: payment.captureId,
+    // One refund per job: a retry of the same request cannot refund twice.
+    paypalRequestId: `refund-${job.id}`,
+    prefer: "return=representation",
+    body: { amount: usd(amount), noteToPayer: note.slice(0, 255), invoiceId: `refund-${job.id}` },
+  });
+  if (!result.id) throw new Error(`refund not created: ${result.status}`);
+  return result.id;
+}
+
 export function startPayments(): void {
   jobs.events.on("offer:accepted", (job: jobs.Job) => {
     if (job.payment !== "PayPal") return;

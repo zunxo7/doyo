@@ -13,6 +13,7 @@ import { registerOta } from "./ota.ts";
 import { planRequest, runBookingAgent } from "./bookingAgent.ts";
 import { SERVICE_SCOPE } from "./scope.ts";
 import { quickReply } from "./router.ts";
+import { handleComplaint } from "./disputes.ts";
 import * as paypal from "./paypal.ts";
 import { actor, cleanId, HttpError, issueToken } from "./auth.ts";
 import * as geo from "./geo.ts";
@@ -282,7 +283,7 @@ app.post("/api/ops/llm", { bodyLimit: 2_000_000 }, async req => {
 });
 
 app.post("/api/agent/plan", async req => {
-  actor(req);
+  const userId = actor(req);
   const { text, plan, recent, usualPrice } = z
     .object({
       text: z.string().trim().min(1).max(300),
@@ -291,7 +292,14 @@ app.post("/api/agent/plan", async req => {
       usualPrice: z.number().int().positive().max(10_000_000).optional(),
     })
     .parse(req.body);
-  return quickReply(text, Boolean(plan)) ?? planRequest(text, plan ?? undefined, recent, usualPrice);
+  const quick = quickReply(text, Boolean(plan));
+  if (quick) return quick;
+  // With no new request in progress, a message may be about the job that just finished; both are read at once.
+  const [settled, planned] = await Promise.all([
+    plan ? null : handleComplaint(userId, text),
+    planRequest(text, plan ?? undefined, recent, usualPrice),
+  ]);
+  return settled ?? planned;
 });
 
 app.post("/api/jobs", async req => {
