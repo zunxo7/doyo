@@ -1,5 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { AllCommunityModule, ModuleRegistry, themeQuartz, type ColDef, type RowClickedEvent } from "ag-grid-community";
+import { AgGridReact } from "ag-grid-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { call } from "./api";
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 export type Review = {
   jobId: string;
@@ -17,14 +21,51 @@ export type Review = {
   decided?: { refund: number; at: number; by: string };
 };
 
-const pkr = (value: number) => `PKR ${value.toLocaleString()}`;
-const when = (at: number) => new Date(at).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const pkr = (value: number) => `PKR ${value.toLocaleString("en-PK")}`;
+const ago = (at: number) => {
+  const minutes = Math.round((Date.now() - at) / 60_000);
+  return minutes < 60 ? `${Math.max(1, minutes)}m ago` : minutes < 1440 ? `${Math.round(minutes / 60)}h ago` : `${Math.round(minutes / 1440)}d ago`;
+};
 
-function ReviewCard({ review, onDone }: { review: Review; onDone: () => void }) {
-  const [amount, setAmount] = useState(String(review.suggested || Math.round(review.maxRefund / 2)));
+// The dashboard's own colours and type, so the grid reads like the other widgets.
+const gridTheme = themeQuartz.withParams({
+  backgroundColor: "#2e2e30",
+  foregroundColor: "#ffffff",
+  accentColor: "#00baf0",
+  borderColor: "#3d3e40",
+  headerBackgroundColor: "#2e2e30",
+  headerTextColor: "rgba(255,255,255,0.62)",
+  headerFontWeight: 700,
+  fontFamily: "Montserrat, system-ui, sans-serif",
+  fontSize: 13,
+  rowHoverColor: "rgba(0,186,240,0.07)",
+  selectedRowBackgroundColor: "rgba(0,186,240,0.14)",
+  wrapperBorder: false,
+  wrapperBorderRadius: 0,
+  rowBorder: { color: "#3d3e40" },
+  columnBorder: false,
+  browserColorScheme: "dark",
+});
+
+const status = (review: Review) => (!review.decided ? "Waiting" : review.decided.refund ? "Refunded" : "No refund");
+
+function Photo({ src, size }: { src: string | null; size: number }) {
+  return src ? (
+    <img className="rv-thumb" src={src} alt="" style={{ width: size, height: size }} />
+  ) : (
+    <span className="rv-thumb none" style={{ width: size, height: size }}>
+      No photo
+    </span>
+  );
+}
+
+function Decision({ review, onDone }: { review: Review; onDone: () => void }) {
+  const steps = [Math.round(review.maxRefund / 4), Math.round(review.maxRefund / 2), review.maxRefund];
+  const [amount, setAmount] = useState(review.suggested || steps[1]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [zoom, setZoom] = useState(false);
+  useEffect(() => setAmount(review.suggested || Math.round(review.maxRefund / 2)), [review.jobId, review.suggested, review.maxRefund]);
 
   const decide = async (refund: number) => {
     setBusy(true);
@@ -39,68 +80,62 @@ function ReviewCard({ review, onDone }: { review: Review; onDone: () => void }) 
     }
   };
 
-  const value = Math.round(Number(amount));
-  const valid = Number.isFinite(value) && value > 0 && value <= review.maxRefund;
-
   return (
-    <article className={review.decided ? "review settled" : "review"}>
-      {review.photo ? (
-        <button type="button" className="review-photo" onClick={() => setZoom(true)} aria-label="Open photo">
-          <img src={review.photo} alt="Photo the customer sent" />
-        </button>
-      ) : (
-        <div className="review-photo empty">No photo</div>
-      )}
-      <div className="review-body">
-        <div className="review-head">
+    <aside className="rv-card">
+      <button type="button" className="rv-photo" onClick={() => review.photo && setZoom(true)} disabled={!review.photo} aria-label="Open photo">
+        {review.photo ? <img src={review.photo} alt="Photo the customer sent" /> : <span>No photo sent</span>}
+      </button>
+      <div className="dw-head">
+        <div>
           <b>{review.detail}</b>
-          <time>{when(review.at)}</time>
+          <span>
+            {review.customer} · {review.worker ?? "Worker"} · {pkr(review.price)}
+          </span>
         </div>
-        <p className="review-meta">
-          {review.customer} · {review.worker ?? "Worker"} · paid {pkr(review.price)}
+        <em className={review.decided ? "" : "live"}>{status(review)}</em>
+      </div>
+      <p className="rv-quote">“{review.text}”</p>
+      {review.note ? (
+        <p className="rv-note">
+          <i>Claude</i>
+          {review.note}
         </p>
-        <blockquote>“{review.text}”</blockquote>
-        {review.note ? (
-          <p className="review-note">
-            <span>Claude</span>
-            {review.note}
-          </p>
-        ) : null}
-        {review.decided ? (
-          <p className="review-outcome">{review.decided.refund ? `Refunded ${pkr(review.decided.refund)} by PayPal` : "Closed with no refund"}</p>
-        ) : (
-          <div className="review-actions">
-            <label>
-              PKR
-              <input inputMode="numeric" value={amount} onChange={event => setAmount(event.target.value)} />
-            </label>
-            <button className="btn" type="button" disabled={busy || !valid} onClick={() => void decide(value)}>
-              Refund by PayPal
+      ) : null}
+      {review.decided ? (
+        <div className="rv-done">{review.decided.refund ? `${pkr(review.decided.refund)} refunded by PayPal` : "Closed with no refund"}</div>
+      ) : (
+        <>
+          <div className="rv-steps">
+            {steps.map(step => (
+              <button key={step} type="button" className={step === amount ? "on" : ""} onClick={() => setAmount(step)}>
+                {pkr(step)}
+              </button>
+            ))}
+          </div>
+          <div className="rv-actions">
+            <button className="btn" type="button" disabled={busy || !(amount > 0)} onClick={() => void decide(amount)}>
+              Refund {pkr(amount)}
             </button>
             <button className="ghost" type="button" disabled={busy} onClick={() => void decide(0)}>
               No refund
             </button>
-            <small>Up to {pkr(review.maxRefund)}</small>
           </div>
-        )}
-        {error ? (
-          <p className="review-error" role="alert">
-            {error}
-          </p>
-        ) : null}
-      </div>
+        </>
+      )}
+      {error ? <p className="rv-error">{error}</p> : null}
       {zoom && review.photo ? (
-        <button type="button" className="review-zoom" onClick={() => setZoom(false)} aria-label="Close photo">
+        <button type="button" className="rv-zoom" onClick={() => setZoom(false)} aria-label="Close photo">
           <img src={review.photo} alt="Photo the customer sent" />
         </button>
       ) : null}
-    </article>
+    </aside>
   );
 }
 
-/** Complaints the agent sent to a person: the customer's words and photo, Claude's note, and a refund decision. */
+/** Complaints the agent sent to a person, in a grid; the selected one opens beside it with its photo and a refund decision. */
 export function Reviews({ tick, onCount }: { tick: number; onCount: (open: number) => void }) {
   const [reviews, setReviews] = useState<Review[] | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const { reviews: next } = await call<{ reviews: Review[] }>("/api/ops/reviews");
@@ -112,24 +147,69 @@ export function Reviews({ tick, onCount }: { tick: number; onCount: (open: numbe
     void load().catch(() => undefined);
   }, [load, tick]);
 
+  const columns = useMemo<ColDef<Review>[]>(
+    () => [
+      { headerName: "", field: "photo", width: 64, sortable: false, cellRenderer: ({ value }: { value: string | null }) => <Photo src={value} size={36} /> },
+      { headerName: "Job", field: "detail", flex: 1.1, minWidth: 140 },
+      { headerName: "Customer", field: "customer", width: 120 },
+      { headerName: "Complaint", field: "text", flex: 2, minWidth: 200, tooltipField: "text" },
+      { headerName: "Paid", field: "price", width: 110, valueFormatter: ({ value }) => pkr(value as number) },
+      {
+        headerName: "Status",
+        colId: "status",
+        width: 120,
+        valueGetter: ({ data }) => (data ? status(data) : ""),
+        cellRenderer: ({ value }: { value: string }) => <span className={`rv-pill ${value === "Waiting" ? "wait" : value === "Refunded" ? "paid" : ""}`}>{value}</span>,
+      },
+      { headerName: "When", field: "at", width: 100, sort: "desc", valueFormatter: ({ value }) => ago(value as number) },
+    ],
+    [],
+  );
+
   if (!reviews) return <div className="loading">Loading reviews</div>;
   const open = reviews.filter(review => !review.decided);
-  const settled = reviews.filter(review => review.decided);
+  const refunded = reviews.filter(review => review.decided?.refund);
+  const current = reviews.find(review => review.jobId === selected) ?? open[0] ?? reviews[0];
+  const tiles = [
+    { label: "Waiting for a person", value: String(open.length), accent: open.length > 0 },
+    { label: "With a photo", value: String(reviews.filter(review => review.photo).length) },
+    { label: "Refunded after review", value: String(refunded.length) },
+    { label: "Refunded total", value: pkr(refunded.reduce((sum, review) => sum + (review.decided?.refund ?? 0), 0)) },
+  ];
+
   return (
-    <div className="reviews">
-      <header>
-        <h2>Complaints for review</h2>
-        <p>Doyo refunds a complaint itself when the photo shows the problem. The rest come here, with Claude's note, for a person to decide.</p>
-      </header>
-      {open.length ? open.map(review => <ReviewCard key={review.jobId} review={review} onDone={() => void load()} />) : <p className="reviews-empty">Nothing waiting.</p>}
-      {settled.length ? (
-        <>
-          <h3>Settled</h3>
-          {settled.slice(0, 10).map(review => (
-            <ReviewCard key={review.jobId} review={review} onDone={() => void load()} />
-          ))}
-        </>
-      ) : null}
+    <div className="rv">
+      <div className="rv-tiles">
+        {tiles.map(tile => (
+          <div key={tile.label} className={tile.accent ? "rv-tile accent" : "rv-tile"}>
+            <span>{tile.label}</span>
+            <b>{tile.value}</b>
+          </div>
+        ))}
+      </div>
+      <div className="rv-main">
+        <section className="rv-grid">
+          <div className="dw-head rv-grid-head">
+            <div>
+              <b>Complaints for review</b>
+              <span>Doyo refunds on its own when the photo shows the problem. These need a person.</span>
+            </div>
+          </div>
+          <div className="rv-grid-body">
+            <AgGridReact<Review>
+              theme={gridTheme}
+              rowData={reviews}
+              columnDefs={columns}
+              rowHeight={52}
+              getRowId={({ data }) => data.jobId}
+              rowSelection={{ mode: "singleRow", checkboxes: false, enableClickSelection: true }}
+              onRowClicked={(event: RowClickedEvent<Review>) => event.data && setSelected(event.data.jobId)}
+              overlayNoRowsTemplate="Nothing waiting."
+            />
+          </div>
+        </section>
+        {current ? <Decision review={current} onDone={() => void load()} /> : null}
+      </div>
     </div>
   );
 }
