@@ -95,7 +95,7 @@ function Decision({ review, onDone }: { review: Review; onDone: () => void }) {
       {review.note ? (
         <p className="rv-note" title={review.note}>
           <i>Claude</i>
-          {review.note}
+          <span>{review.note}</span>
         </p>
       ) : null}
       {review.decided ? (
