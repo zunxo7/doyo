@@ -77,7 +77,8 @@ ${photo ? "The customer attached the photo above." : "No photo attached."}`;
   const amount = Math.min(Math.max(Math.round(decision.refund), 0), maxRefund);
   const proven = Boolean(photo) && decision.photo_shows_problem;
   // Without a photo, a customer with recent refunds is asked for one rather than paid on their word.
-  if (!photo && (decision.ask_photo || (amount && recentRefunds >= AUTO_REFUNDS))) return answer(decision.ask_photo && decision.reply ? decision.reply : PHOTO_REPLY);
+  // A person only reviews a complaint that has a photo; without one, Doyo asks for it first.
+  if (!photo && (decision.ask_photo || decision.escalate || (amount && recentRefunds >= AUTO_REFUNDS))) return answer(decision.ask_photo && decision.reply ? decision.reply : PHOTO_REPLY);
   if (decision.escalate || (photo && !proven) || (amount && !proven && recentRefunds >= AUTO_REFUNDS)) {
     jobs.recordReview(job.id, text, decision.reason, amount, photo);
     console.info(`dispute ${job.id}: sent to review (${recentRefunds} recent refunds): ${decision.reason}`);

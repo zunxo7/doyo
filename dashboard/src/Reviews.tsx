@@ -147,7 +147,14 @@ export function Reviews({ tick, onCount }: { tick: number; onCount: (open: numbe
 
   const columns = useMemo<ColDef<Review>[]>(
     () => [
-      { headerName: "", field: "photo", width: 64, sortable: false, cellRenderer: ({ value }: { value: string | null }) => <Photo src={value} size={36} /> },
+      {
+        headerName: "",
+        field: "photo",
+        width: 76,
+        sortable: false,
+        cellStyle: { display: "flex", alignItems: "center", textOverflow: "clip" },
+        cellRenderer: ({ value }: { value: string | null }) => <Photo src={value} size={40} />,
+      },
       { headerName: "Job", field: "detail", flex: 1.1, minWidth: 140 },
       { headerName: "Customer", field: "customer", width: 120 },
       { headerName: "Complaint", field: "text", flex: 2, minWidth: 200, tooltipField: "text" },

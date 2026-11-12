@@ -288,7 +288,7 @@ app.get("/api/ops/reviews", async req => {
   return {
     reviews: store
       .list<jobs.Job>("jobs")
-      .filter(job => job.review)
+      .filter(job => job.review?.photo)
       .sort((a, b) => b.review!.at - a.review!.at)
       .map(job => {
         const price = job.acceptedPrice ?? job.price;
