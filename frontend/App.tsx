@@ -19,7 +19,6 @@ import {
 import SplashScreen from "./screens/SplashScreen";
 import UpdateRequiredScreen from "./screens/UpdateRequiredScreen";
 import OnboardingScreen from "./screens/OnboardingScreen";
-import PhoneNumberScreen from "./screens/PhoneNumberScreen";
 import EmailScreen from "./screens/EmailScreen";
 import OTPScreen from "./screens/OTPScreen";
 import RoleScreen from "./screens/RoleScreen";
@@ -149,7 +148,6 @@ function AppShell() {
             options={{ gestureEnabled: false }}
           />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-          <Stack.Screen name="PhoneNumber" component={PhoneNumberScreen} />
           <Stack.Screen name="Email" component={EmailScreen} />
           <Stack.Screen name="OTP" component={OTPScreen} />
           <Stack.Screen name="Role" component={RoleScreen} />

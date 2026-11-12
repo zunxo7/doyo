@@ -20,7 +20,6 @@ export type RootStackParamList = {
     updateUrl: string;
   };
   Onboarding: undefined;
-  PhoneNumber: { uid?: string; email: string; name?: string | null };
   Email: undefined;
   OTP: { email: string; challenge: string; expiresAt: number };
   Role: { uid?: string; email: string; name?: string | null; phone: string };
