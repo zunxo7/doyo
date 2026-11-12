@@ -20,16 +20,25 @@ Agentic commerce for home services: tell Doyo what you need, and it negotiates w
 
 ## Testing instructions (private field for judges)
 
-1. Install the APK (Android phone or arm64 emulator).
-2. **Continue with Email** → `judge@letdoyo.com` → code `1234`. Any `@letdoyo.com` address works with `1234`.
-3. Type "Deep clean 3 rooms" or tap a suggestion, then **Book it**. PayPal is pre-linked to a sandbox account, so there is no PayPal sign-in and no real money.
-4. Watch Doyo negotiate. Tap **Take over** to counter or accept a worker yourself, or **Let Doyo** to hand back.
-5. When booked, the chat shows PayPal holding the price. Tap **Track on map**, then **Continue demo flow**: the worker drives the route, arrives, starts and completes. The hold is captured and the worker is paid out.
-6. Back in the chat, complain, e.g. "the windows still have streaks". Doyo decides a refund and sends it through PayPal.
-7. Dashboard: open https://letdoyo.com/dashboard with the same email and code. Tap **Ask Doyo** to ask about bookings or have it build a chart.
-8. Worker side: in the menu, tap **Worker mode**, go online, and send an offer on the request that arrives.
+Android APK: https://api.letdoyo.com/ota/app.apk (Android phone or arm64 emulator). Everyone is placed at G-10 Markaz, Islamabad. PayPal runs in the sandbox and is pre-linked, so there is no PayPal sign-in and no real money.
 
-Demo mode: everyone is placed at G-10 Markaz, Islamabad. The four workers who bid (Ayesha, Bilal, Sana, Usman) are AI personas that stand in for real workers so a judge sees a live market; real workers use the same app's worker mode and bid alongside them.
+**Customer (one phone)**
+1. **Continue with Email** → `judge@letdoyo.com` → code `1234`. Any `@letdoyo.com` address works with code `1234`.
+2. Type "Deep clean 3 rooms" (English, Urdu or Roman Urdu) or tap a suggestion, then **Book it**.
+3. Watch Doyo negotiate. Tap **Take over** to counter or accept a worker yourself, then **Let Doyo** to hand back.
+4. When booked, the chat shows PayPal holding the price. Tap **Track on map**, then **Continue demo flow**: the worker drives over, arrives, starts and completes. The hold is captured and the worker is paid out.
+5. Back in the chat, complain, e.g. "the windows still have streaks". Doyo asks for a photo (camera button next to the message box), checks it, and refunds the fair share through PayPal, or sends it to a person if the photo doesn't show the problem.
+
+**Worker side**
+- One phone: menu → **Worker mode** → go online. A simulated customer nearby posts a request; send your price (or accept theirs), then drive, start with code `0000` and complete. Earnings and the PayPal payout appear under Earnings.
+- Two phones, real people only (the AI bidders are for demos): on the customer phone open **Settings** and turn **AI demo workers** off. On the second phone sign in with another `@letdoyo.com` address and go online in **Worker mode**. Book from the first phone: only the real worker gets the request. Doyo's counter appears on the worker's card ("Customer offers PKR …"); accept or counter, and Doyo books them. Complete the job from the worker phone and PayPal charges the customer and pays the worker.
+
+**Operations dashboard**: https://letdoyo.com/dashboard, same email and code.
+- **Overview / Bookings / PayPal**: every booking, negotiation and PayPal payment, live.
+- **Reviews**: complaints Doyo sent to a person, with the customer's photo and Claude's note; refund by PayPal from there.
+- **Ask Doyo**: ask about bookings or have it build a chart.
+
+Demo note: the four workers who bid by default (Ayesha, Bilal, Sana, Usman) are AI personas standing in for real workers, so one judge sees a live market. Real workers use the same worker mode and bid alongside them, or alone with the switch off.
 
 ## Inspiration
 
