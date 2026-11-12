@@ -53,9 +53,7 @@ function Photo({ src, size }: { src: string | null; size: number }) {
   return src ? (
     <img className="rv-thumb" src={src} alt="" style={{ width: size, height: size }} />
   ) : (
-    <span className="rv-thumb none" style={{ width: size, height: size }}>
-      No photo
-    </span>
+    <span className="rv-thumb none" style={{ width: size, height: size }} title="No photo" />
   );
 }
 
